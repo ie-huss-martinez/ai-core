@@ -16,16 +16,17 @@ export default defineConfig(({ mode }) => {
           test: {
             name: "unit",
             // build.test.ts checks the built package, so it sits next to the
-            // Vite config rather than in src/.
-            include: ["src/**/*.test.ts", "*.test.ts"],
-            exclude: ["src/**/*.browser.test.ts"],
+            // Vite config rather than in src/. test/ holds the repository's
+            // own checks, such as the CI image.
+            include: ["src/**/*.test.ts", "*.test.ts", "test/**/*.test.ts"],
+            exclude: ["**/*.browser.test.ts"],
             environment: "node",
           },
         },
         {
           test: {
             name: "browser",
-            include: ["src/**/*.browser.test.ts"],
+            include: ["src/**/*.browser.test.ts", "test/**/*.browser.test.ts"],
             browser: {
               enabled: true,
               headless: true,
