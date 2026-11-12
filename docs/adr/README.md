@@ -14,3 +14,4 @@ Use [`template.md`](template.md) for new records. Name files `NNNN-short-title.m
 | [0004](0004-keys-and-runtime-detection.md) | Keys stay on the server: how adapters hold keys and recognise a server | Accepted |
 | [0005](0005-limits-and-streams.md) | Limits on requests and responses, and how streams are read | Accepted |
 | [0006](0006-recorded-fixtures.md) | Tests replay recorded provider responses, recorded only by hand | Accepted |
+| [0007](0007-no-automatic-retries.md) | No automatic retries: errors say whether and when to retry | Accepted |
