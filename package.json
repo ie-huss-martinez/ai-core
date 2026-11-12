@@ -60,6 +60,7 @@
   },
   "scripts": {
     "prepare": "husky",
+    "changeset": "changeset",
     "lint": "biome check .",
     "lint:deps": "hm-lint-deps src",
     "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.test.json",
@@ -77,6 +78,8 @@
   "devDependencies": {
     "@arethetypeswrong/cli": "catalog:",
     "@biomejs/biome": "catalog:",
+    "@changesets/changelog-github": "catalog:",
+    "@changesets/cli": "catalog:",
     "@commitlint/cli": "catalog:",
     "@hussmartinez/sdk-config": "catalog:",
     "@microsoft/api-extractor": "catalog:",
