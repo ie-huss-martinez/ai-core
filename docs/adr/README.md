@@ -10,3 +10,5 @@ Use [`template.md`](template.md) for new records. Name files `NNNN-short-title.m
 |---|---|---|
 | [0001](0001-message-model-and-provider-state.md) | The message model, and provider state replayed unchanged | Accepted |
 | [0002](0002-provider-shape.md) | One provider shape for adapters, the transport and custom providers | Accepted |
+| [0003](0003-request-handler-and-wire-protocol.md) | The request handler, a required `prepare`, and the `ai-core/1` protocol | Accepted |
+| [0004](0004-keys-and-runtime-detection.md) | Keys stay on the server: how adapters hold keys and recognise a server | Accepted |
