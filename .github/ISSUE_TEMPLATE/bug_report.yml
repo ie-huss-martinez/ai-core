@@ -1,0 +1,77 @@
+name: Bug report
+description: Something in @hussmartinez/ai-core doesn't work as documented.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. **Security vulnerabilities**, including any leaked API key, a way to use a host's handler as an open proxy, a request ai-core shouldn't make, or a response that escapes its limits, go through [private reporting](https://github.com/ie-huss-martinez/ai-core/security/advisories/new) instead.
+
+        **Please don't attach keys, real conversations or full provider responses.** Anything you attach here is public. Never share an API key, even a revoked one, real users' prompts or model output, or response headers and bodies with account details. Use placeholders and the smallest made-up conversation that shows the problem.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - The Anthropic adapter
+        - The Gemini adapter
+        - The OpenAI-compatible adapter or the Kimi preset
+        - A custom provider or the contract suite
+        - The server handler
+        - The browser transport
+        - Streaming, limits or cancellation
+        - Errors and error codes
+        - Types or packaging
+        - Something else
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: The package version, or the commit if you're working from source.
+      placeholder: 0.1.0
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: Include any error code (such as `RATE_LIMITED`) and the provider's error type from the error's `details`. Leave out keys and request or response bodies.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: The smallest code that shows the problem, with placeholders for keys. A link to a minimal repository is ideal.
+      placeholder: |
+        1. …
+        2. …
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: The provider and model, where the code runs (a browser and its version, Node, Deno, Bun or a Workers runtime), and the framework, such as Next.js.
+      placeholder: Anthropic claude-opus-5-5, Next.js 16 route handler on Node 24
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before you submit
+      options:
+        - label: I searched the existing issues, and this hasn't been reported yet.
+          required: true
+        - label: This isn't a security vulnerability.
+          required: true
+        - label: Nothing I attached contains a key, real conversations or account details.
+          required: true
