@@ -1,0 +1,11 @@
+{
+  // The browser preset: ai-core runs in browsers and in server runtimes with
+  // the Fetch API, and its types (fetch, streams, AbortSignal) come from DOM's
+  // lib. The library itself never sees Node's types.
+  "extends": "@hussmartinez/sdk-config/tsconfig/browser",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": ["src"],
+  "exclude": ["src/**/*.test.ts", "src/**/fixtures", "src/test"]
+}
