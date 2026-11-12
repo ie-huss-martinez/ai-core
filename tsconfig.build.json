@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    // Vite emits the JavaScript. tsc only emits declarations, which
+    // api-extractor rolls up into one dist/<entry>.d.ts per entry point.
+    "noEmit": false,
+    "emitDeclarationOnly": true,
+    "declarationMap": false,
+    "rootDir": "src",
+    "declarationDir": "temp/types"
+  }
+}
