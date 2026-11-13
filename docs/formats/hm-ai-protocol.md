@@ -13,7 +13,7 @@ The schema ships with the package, as `@hussmartinez/ai-core/formats/hm-ai-proto
 **Receivers ignore fields and events they don't know, so later minor versions can add them.** A page can run the previous release's transport, from its cache, against a newly deployed handler. So the event schemas allow fields they don't list, and the transport ignores them, while it stays strict on the types and values of the fields it knows. Two things stay strict:
 
 - **the request,** which the handler refuses with `unknown-field`, because it's the security boundary;
-- **the parts inside a `part` event,** which follow the message model, because the page sends them back to the handler in the next request.
+- **the parts inside a `part` event,** which follow the message model, because the page sends them back to the handler in the next request. So a later version that needs more in a part adds a new part type or a new protocol identifier, never a new field on an existing part, which pages running the previous release would refuse.
 
 ## Request
 
