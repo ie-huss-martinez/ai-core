@@ -1,0 +1,225 @@
+{
+  "format": "hm-conformance",
+  "version": 1,
+  "subject": "hm-ai-context-hash",
+  "description": "The context hash (docs/formats/hm-ai-context-hash.md): input is the system prompt and tools that prepare returned, and expected is their canonical JSON and its SHA-256, or the rejection. The expected values come from an implementation independent of ai-core's.",
+  "cases": [
+    {
+      "name": "no system prompt and no tools",
+      "input": {},
+      "expected": {
+        "canonical": "{\"system\":null,\"tools\":[]}",
+        "sha256": "71c702edfb2d7645f1054f9f536a7399d30d4a29aeb9610e6ed5916729c7b1f7"
+      }
+    },
+    {
+      "name": "an empty system prompt, which differs from none",
+      "input": {
+        "system": ""
+      },
+      "expected": {
+        "canonical": "{\"system\":\"\",\"tools\":[]}",
+        "sha256": "f83dbcb792522e51cd1f8adcd327061332c1ad95caa7d1d4fe5a213b5ca2be10"
+      }
+    },
+    {
+      "name": "a system prompt with escapes, control characters and non-ASCII text",
+      "input": {
+        "system": "Be brief.\n\t\"Quote\" \\ caf\u00e9 \u65e5\u672c \ud83d\ude00 \u0007 \u2028"
+      },
+      "expected": {
+        "canonical": "{\"system\":\"Be brief.\\n\\t\\\"Quote\\\" \\\\ caf\u00e9 \u65e5\u672c \ud83d\ude00 \\u0007 \u2028\",\"tools\":[]}",
+        "sha256": "4fc19f2a80c25e7917343eb4f9cffa81b679a351b21f3e6b6be1bde662218ffd"
+      }
+    },
+    {
+      "name": "an empty list of tools, the same as none",
+      "input": {
+        "tools": []
+      },
+      "expected": {
+        "canonical": "{\"system\":null,\"tools\":[]}",
+        "sha256": "71c702edfb2d7645f1054f9f536a7399d30d4a29aeb9610e6ed5916729c7b1f7"
+      }
+    },
+    {
+      "name": "tools in order, with keys sorted at every level",
+      "input": {
+        "system": "Be brief.",
+        "tools": [
+          {
+            "name": "look",
+            "description": "Looks something up.",
+            "inputSchema": {
+              "type": "object",
+              "required": ["query"],
+              "properties": {
+                "query": {
+                  "type": "string",
+                  "maxLength": 200
+                }
+              }
+            }
+          },
+          {
+            "name": "other",
+            "inputSchema": {
+              "type": "object"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "canonical": "{\"system\":\"Be brief.\",\"tools\":[{\"description\":\"Looks something up.\",\"inputSchema\":{\"properties\":{\"query\":{\"maxLength\":200,\"type\":\"string\"}},\"required\":[\"query\"],\"type\":\"object\"},\"name\":\"look\"},{\"inputSchema\":{\"type\":\"object\"},\"name\":\"other\"}]}",
+        "sha256": "a43802d9c2a421d46af5e426e63db56059a242c50b64037da3b759e0e11cd431"
+      }
+    },
+    {
+      "name": "the same tools in the other order give another hash",
+      "input": {
+        "system": "Be brief.",
+        "tools": [
+          {
+            "name": "other",
+            "inputSchema": {
+              "type": "object"
+            }
+          },
+          {
+            "name": "look",
+            "description": "Looks something up.",
+            "inputSchema": {
+              "type": "object",
+              "required": ["query"],
+              "properties": {
+                "query": {
+                  "type": "string",
+                  "maxLength": 200
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "canonical": "{\"system\":\"Be brief.\",\"tools\":[{\"inputSchema\":{\"type\":\"object\"},\"name\":\"other\"},{\"description\":\"Looks something up.\",\"inputSchema\":{\"properties\":{\"query\":{\"maxLength\":200,\"type\":\"string\"}},\"required\":[\"query\"],\"type\":\"object\"},\"name\":\"look\"}]}",
+        "sha256": "dc3efe508c697258085dd01f5df1c059fb0172348fff066558e18747bf6620b9"
+      }
+    },
+    {
+      "name": "a tool without a description",
+      "input": {
+        "tools": [
+          {
+            "name": "other",
+            "inputSchema": {
+              "type": "object"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "canonical": "{\"system\":null,\"tools\":[{\"inputSchema\":{\"type\":\"object\"},\"name\":\"other\"}]}",
+        "sha256": "b370fdc9a20811da61a271e7fac650d2e99724b3e346233eb14d92bfd4336dda"
+      }
+    },
+    {
+      "name": "hostile keys are ordinary keys",
+      "input": {
+        "tools": [
+          {
+            "name": "keys",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "__proto__": {
+                  "type": "string"
+                },
+                "constructor": {
+                  "type": "number"
+                },
+                "toString": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "canonical": "{\"system\":null,\"tools\":[{\"inputSchema\":{\"properties\":{\"__proto__\":{\"type\":\"string\"},\"constructor\":{\"type\":\"number\"},\"toString\":{\"type\":\"boolean\"}},\"type\":\"object\"},\"name\":\"keys\"}]}",
+        "sha256": "74e0279ce58eb774534d8526654dba8ac922893d39af5acfe65d315f50e60247"
+      }
+    },
+    {
+      "name": "keys are sorted by UTF-16 code units, not code points",
+      "input": {
+        "tools": [
+          {
+            "name": "unicode",
+            "inputSchema": {
+              "\ufb33": 1,
+              "\ud83d\ude00": 2,
+              "\u00f6": 3,
+              "z": 4
+            }
+          }
+        ]
+      },
+      "expected": {
+        "canonical": "{\"system\":null,\"tools\":[{\"inputSchema\":{\"z\":4,\"\u00f6\":3,\"\ud83d\ude00\":2,\"\ufb33\":1},\"name\":\"unicode\"}]}",
+        "sha256": "2301e211f13c934856773d1ec5288b3cf09b4e6c2c56a128975676745dc8a6d2"
+      }
+    },
+    {
+      "name": "numbers as ECMAScript writes them",
+      "input": {
+        "tools": [
+          {
+            "name": "n",
+            "inputSchema": {
+              "minimum": 0,
+              "maximum": 100,
+              "multipleOf": 0.5
+            }
+          }
+        ]
+      },
+      "expected": {
+        "canonical": "{\"system\":null,\"tools\":[{\"inputSchema\":{\"maximum\":100,\"minimum\":0,\"multipleOf\":0.5},\"name\":\"n\"}]}",
+        "sha256": "a36255364ac6fe9ca1563c2597edc68356a25debf683cef5a957b0d4bbe0cfa9"
+      }
+    },
+    {
+      "name": "a system prompt with a lone surrogate is refused",
+      "input": {
+        "system": "\ud800"
+      },
+      "expected": {
+        "error": {
+          "code": "PREPARE_FAILED",
+          "reason": "non-json-settings"
+        }
+      }
+    },
+    {
+      "name": "a tool schema key with a lone surrogate is refused",
+      "input": {
+        "tools": [
+          {
+            "name": "bad",
+            "inputSchema": {
+              "\udc00": 1
+            }
+          }
+        ]
+      },
+      "expected": {
+        "error": {
+          "code": "PREPARE_FAILED",
+          "reason": "non-json-settings"
+        }
+      }
+    }
+  ]
+}

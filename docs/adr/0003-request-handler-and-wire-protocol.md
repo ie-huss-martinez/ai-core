@@ -17,6 +17,7 @@
   - it takes the response `limits` and `onWarning` of [0005](0005-limits-and-streams.md);
   - a failed response that isn't the handler's own JSON error, such as a 401 or 429 that `prepare` returned, gets the provider code for its status, with `retryAfter` from its `retry-after` header;
   - it ignores event types it doesn't know, so a later minor version can add events without a new protocol version.
+- **Amended:** 2026-11-13. The context hash's canonical JSON is RFC 8785 (JCS), as [sdk-core ADR 0045](https://github.com/ie-huss-martinez/sdk-core/blob/main/docs/adr/0045-portable-formats-and-conformance-vectors.md) requires for anything hashed across languages. It's defined in [`docs/formats/hm-ai-context-hash.md`](../formats/hm-ai-context-hash.md), with conformance vectors. Settings that aren't JSON, such as `NaN`, get 500 `PREPARE_FAILED` with `details.reason` `"non-json-settings"`.
 
 ## Context
 
