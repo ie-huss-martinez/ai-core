@@ -15,6 +15,7 @@ import {
   ANSWER_PIECES,
   API_KEY,
   PROVIDER_PORT,
+  PROVIDER_URL,
   type ProviderRecord,
   THINKING,
 } from "./constants.ts";
@@ -76,7 +77,7 @@ async function stream(
 }
 
 const server = createServer(async (request, response) => {
-  const url = new URL(request.url ?? "/", `http://localhost:${PROVIDER_PORT}`);
+  const url = new URL(request.url ?? "/", PROVIDER_URL);
   if (request.method === "GET" && url.pathname === "/__log") {
     response.writeHead(200, { "content-type": "application/json" });
     response.end(JSON.stringify(records));
@@ -142,4 +143,4 @@ const server = createServer(async (request, response) => {
   }
 });
 
-server.listen(PROVIDER_PORT, "localhost");
+server.listen(PROVIDER_PORT, "127.0.0.1");

@@ -5,7 +5,9 @@
 export const API_KEY = "sk-ant-e2e-sentinel-key-0123456789abcdef";
 export const PROVIDER_PORT = 4411;
 export const APP_PORT = 3300;
-export const PROVIDER_URL = `http://localhost:${PROVIDER_PORT}`;
+// An IP address, not localhost, which can resolve to ::1 on one side and
+// 127.0.0.1 on the other. The adapter accepts http: for both.
+export const PROVIDER_URL = `http://127.0.0.1:${PROVIDER_PORT}`;
 export const APP_URL = `http://localhost:${APP_PORT}`;
 
 /** The thinking block the stand-in returns, which the next turn must send back unchanged. */
