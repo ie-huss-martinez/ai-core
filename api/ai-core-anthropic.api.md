@@ -4,4 +4,32 @@
 
 ```ts
 
+import { FilePolicyOverrides } from '@hussmartinez/sdk-core';
+
+// @public
+export interface AiLimitWarning {
+    readonly actual: number;
+    // (undocumented)
+    readonly limit: "responseBytes" | "streamDuration" | "idleTime";
+    readonly maximum: number;
+}
+
+// @public
+export interface AnthropicOptions {
+    readonly apiKey: string | (() => string | Promise<string>);
+    readonly baseURL?: string;
+    readonly dangerouslyAllowBrowser?: boolean;
+    readonly fetch?: typeof fetch;
+    // Warning: (ae-forgotten-export) The symbol "ResponseLimitOverrides" needs to be exported by the entry point anthropic.d.ts
+    readonly limits?: ResponseLimitOverrides;
+    readonly maxOutputTokens?: number;
+    readonly model: string;
+    readonly onWarning?: (warning: AiLimitWarning) => void;
+}
+
+// Warning: (ae-forgotten-export) The symbol "AiProvider" needs to be exported by the entry point anthropic.d.ts
+//
+// @public
+export function createAnthropic(options: AnthropicOptions): AiProvider;
+
 ```

@@ -231,6 +231,20 @@ describe("readSseEvents and the host's signal", () => {
     expect(source.state.cancelled).toBe(true);
   });
 
+  it("delivers no more events after an abort, even from the same chunk", async () => {
+    const source = controlledBody();
+    const host = new AbortController();
+    source.send("data: a\n\ndata: b\n\n");
+    const events = readSseEvents(source.body, guard(undefined, { signal: host.signal }));
+    expect((await events.next()).value).toEqual({ event: "message", data: "a" });
+    host.abort();
+    const error = await events.next().then(
+      () => undefined,
+      (caught: unknown) => caught,
+    );
+    expect(isAiError(error, "ABORTED")).toBe(true);
+  });
+
   it("fails with TIMEOUT when the host's signal times out", async () => {
     const source = controlledBody();
     const host = new AbortController();

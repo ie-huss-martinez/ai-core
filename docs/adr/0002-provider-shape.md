@@ -2,6 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-11-12
+- **Amended:** 2026-11-13. The contract suite takes `{ describe, it }` only, without `expect`, and throws its own errors: `node:test` has no `expect`, and matchers differ between frameworks, while `describe` and `it` have the same shape in Vitest, Jest and `node:test`. The decision that `ai-core` depends on no test framework is unchanged.
 
 ## Context
 

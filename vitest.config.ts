@@ -21,6 +21,8 @@ export default defineConfig(({ mode }) => {
             include: ["src/**/*.test.ts", "*.test.ts", "test/**/*.test.ts"],
             exclude: ["**/*.browser.test.ts"],
             environment: "node",
+            // Fails any request a test didn't plan for (ADR 0006).
+            setupFiles: ["src/test/no-network.ts"],
           },
         },
         {
