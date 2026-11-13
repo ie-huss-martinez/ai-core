@@ -8,6 +8,12 @@ This repository will publish **`@hussmartinez/ai-core`**. It follows the family 
 
 > Status: being bootstrapped. No packages are published yet.
 
+## Data and providers
+
+ai-core never asks a provider to keep your users' conversations ([ADR 0008](docs/adr/0008-no-provider-side-storage.md)). Where a provider offers server-side storage, the adapter turns it off in every request, and `providerOptions` can't turn it back on. Gemini, for example, always gets `store: false`. Your application keeps the conversation and sends it with each call.
+
+`store` is only one of the ways a provider can retain data. Each provider's own terms decide what else happens to what you send, such as logging, abuse monitoring, or training use, which can differ on free tiers. Reviewing those terms, and choosing a tier and settings that fit your users, is your responsibility as the host.
+
 ## Development
 
 The repository root is the published package, laid out as in the family's [standard layout](https://github.com/ie-huss-martinez/sdk-core/blob/main/STANDARDS.md#repository-layout): the source is in [`src`](src), with one entry file per export (`.`, `./server`, `./anthropic`, `./gemini`, `./openai-compatible` and `./testing`). The examples and end-to-end tests will join the pnpm workspace as `examples/` and `e2e/`.

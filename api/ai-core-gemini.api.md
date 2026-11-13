@@ -4,4 +4,32 @@
 
 ```ts
 
+import { FilePolicyOverrides } from '@hussmartinez/sdk-core';
+
+// @public
+export interface AiLimitWarning {
+    readonly actual: number;
+    // (undocumented)
+    readonly limit: "responseBytes" | "streamDuration" | "idleTime";
+    readonly maximum: number;
+}
+
+// Warning: (ae-forgotten-export) The symbol "AiProvider" needs to be exported by the entry point gemini.d.ts
+//
+// @public
+export function createGemini(options: GeminiOptions): AiProvider;
+
+// @public
+export interface GeminiOptions {
+    readonly apiKey: string | (() => string | Promise<string>);
+    readonly baseURL?: string;
+    readonly dangerouslyAllowBrowser?: boolean;
+    readonly fetch?: typeof fetch;
+    // Warning: (ae-forgotten-export) The symbol "ResponseLimitOverrides" needs to be exported by the entry point gemini.d.ts
+    readonly limits?: ResponseLimitOverrides;
+    readonly maxOutputTokens?: number;
+    readonly model: string;
+    readonly onWarning?: (warning: AiLimitWarning) => void;
+}
+
 ```

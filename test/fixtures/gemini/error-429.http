@@ -1,0 +1,11 @@
+# provider: gemini
+# endpoint: POST https://generativelanguage.googleapis.com/v1beta/interactions?alt=sse
+# api-revision: 2026-05-20
+# model: gemini-3.8-flash
+# date: 2026-11-13
+# kind: synthetic
+# source: https://aistudio.google.com/llms-full.txt (429 RESOURCE_EXHAUSTED; body shape is Google's usual error envelope, not quoted)
+HTTP/1.1 429 Too Many Requests
+content-type: application/json
+
+{"error":{"code":429,"message":"Resource has been exhausted.","status":"RESOURCE_EXHAUSTED"}}

@@ -1,0 +1,16 @@
+# provider: gemini
+# endpoint: POST https://generativelanguage.googleapis.com/v1beta/interactions?alt=sse
+# api-revision: 2026-05-20
+# model: gemini-3.8-flash
+# date: 2026-11-13
+# kind: synthetic
+# source: https://aistudio.google.com/llms-full.txt (Interactions quickstart stream example; Streaming with thinking; Stream tool calls)
+HTTP/1.1 200 OK
+content-type: text/event-stream; charset=utf-8
+
+event: interaction.created
+data: {"interaction":{"id":"v1_fixture","status":"in_progress","model":"gemini-3.8-flash"},"event_type":"interaction.created"}
+
+event: step.start
+data: {"index":0,"step":{"type":"model_output"
+
