@@ -22,7 +22,7 @@ pnpm verify:fast   # the subset the pre-push hook runs
 
 Browser tests need Playwright's browsers once: `pnpm exec playwright install chromium`. Add `firefox webkit` to run all three engines, as CI does, with `CI=1 pnpm verify` or `pnpm test:browser:all`.
 
-The repository root is the published package, laid out as in the family's [standard layout](https://github.com/ie-huss-martinez/sdk-core/blob/main/STANDARDS.md#repository-layout): the source is in `src/`, with one entry file per export, and the examples and end-to-end tests will join the workspace as `examples/` and `e2e/`.
+The repository root is the published package, laid out as in the family's [standard layout](https://github.com/ie-huss-martinez/sdk-core/blob/main/STANDARDS.md#repository-layout): the source is in `src/`, with one entry file per export, and the workspace also holds `examples/next`, a Next.js application that uses the built package, and `e2e/`, the Playwright suite that runs against it.
 
 The git hooks run on their own: a secret scan and lint of staged files on commit, a Conventional Commits check of each message, and `pnpm verify:fast` on push. Don't bypass them with `--no-verify`. If a hook is wrong or too slow, fix it in its own pull request.
 

@@ -1,0 +1,12 @@
+{
+  "extends": "@hussmartinez/sdk-config/tsconfig/node",
+  "compilerOptions": {
+    "noEmit": true,
+    "module": "nodenext",
+    // Node runs the stand-in provider's TypeScript directly, so imports name .ts files.
+    "allowImportingTsExtensions": true,
+    // Callbacks passed to page.evaluate() run in the browser.
+    "lib": ["es2022", "dom"]
+  },
+  "include": ["*.ts", "tests"]
+}
