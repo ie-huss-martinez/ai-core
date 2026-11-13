@@ -1,0 +1,12 @@
+# provider: openai-compatible
+# endpoint: POST https://api.openai.com/v1/chat/completions
+# model: gpt-5
+# date: 2026-11-13
+# kind: synthetic
+# source: https://github.com/openai/openai-openapi (openapi.json: CreateChatCompletionStreamResponse, ErrorResponse)
+HTTP/1.1 429 Too Many Requests
+content-type: application/json
+x-request-id: req_fixture_0001
+retry-after: 7
+
+{"error":{"message":"Rate limit reached for requests","type":"requests","param":null,"code":"rate_limit_exceeded"}}

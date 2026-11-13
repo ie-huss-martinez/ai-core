@@ -1,0 +1,24 @@
+# provider: kimi
+# endpoint: POST https://api.moonshot.ai/v1/chat/completions
+# model: kimi-k3.1-pro
+# date: 2026-11-13
+# kind: synthetic
+# source: https://platform.kimi.ai/docs/api/chat and https://platform.kimi.ai/docs/guide/use-kimi-k2-thinking-model
+HTTP/1.1 200 OK
+content-type: text/event-stream; charset=utf-8
+x-request-id: req_fixture_0001
+
+data: {"id":"chatcmpl-fixture","object":"chat.completion.chunk","created":1794500000,"model":"kimi-k3.1-pro","choices":[{"index":0,"delta":{"role":"assistant","reasoning_content":"The user wants a greeting. "},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-fixture","object":"chat.completion.chunk","created":1794500000,"model":"kimi-k3.1-pro","choices":[{"index":0,"delta":{"reasoning_content":"Keep it short."},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-fixture","object":"chat.completion.chunk","created":1794500000,"model":"kimi-k3.1-pro","choices":[{"index":0,"delta":{"content":"Hi! 👋 "},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-fixture","object":"chat.completion.chunk","created":1794500000,"model":"kimi-k3.1-pro","choices":[{"index":0,"delta":{"content":"Grüße."},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-fixture","object":"chat.completion.chunk","created":1794500000,"model":"kimi-k3.1-pro","choices":[{"index":0,"delta":{},"finish_reason":"stop"}]}
+
+data: {"id":"chatcmpl-fixture","object":"chat.completion.chunk","created":1794500000,"model":"kimi-k3.1-pro","choices":[],"usage":{"prompt_tokens":15,"completion_tokens":40,"total_tokens":55}}
+
+data: [DONE]
+

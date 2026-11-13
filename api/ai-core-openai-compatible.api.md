@@ -4,4 +4,42 @@
 
 ```ts
 
+import { FilePolicyOverrides } from '@hussmartinez/sdk-core';
+
+// @public
+export interface AiLimitWarning {
+    readonly actual: number;
+    // (undocumented)
+    readonly limit: "responseBytes" | "streamDuration" | "idleTime";
+    readonly maximum: number;
+}
+
+// Warning: (ae-forgotten-export) The symbol "AiProvider" needs to be exported by the entry point openai-compatible.d.ts
+//
+// @public
+export function createKimi(options: KimiOptions): AiProvider;
+
+// @public
+export function createOpenAICompatible(options: OpenAICompatibleOptions): AiProvider;
+
+// @public
+export type KimiOptions = Omit<OpenAICompatibleOptions, "baseURL" | "provider"> & {
+    readonly baseURL?: string;
+};
+
+// @public
+export interface OpenAICompatibleOptions {
+    readonly apiKey: string | (() => string | Promise<string>);
+    readonly baseURL: string;
+    readonly dangerouslyAllowBrowser?: boolean;
+    readonly fetch?: typeof fetch;
+    // Warning: (ae-forgotten-export) The symbol "ResponseLimitOverrides" needs to be exported by the entry point openai-compatible.d.ts
+    readonly limits?: ResponseLimitOverrides;
+    readonly maxOutputTokens?: number;
+    readonly maxTokensField?: "max_completion_tokens" | "max_tokens";
+    readonly model: string;
+    readonly onWarning?: (warning: AiLimitWarning) => void;
+    readonly provider?: string;
+}
+
 ```

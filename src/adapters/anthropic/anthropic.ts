@@ -1,6 +1,3 @@
-import { AiError, abortError } from "../../core/errors/ai-error.js";
-import { finishCallError } from "../../core/errors/call-error.js";
-import { networkError } from "../../core/errors/provider-errors.js";
 import { type ResponseLimitOverrides, responseLimits } from "../../core/limits/ai-limits.js";
 import type {
   AiCallOptions,
@@ -10,10 +7,15 @@ import type {
   AiResult,
 } from "../../core/model/provider.js";
 import { assertKeyMayBeUsed } from "../../core/runtime/server-runtime.js";
-import { type AiLimitWarning, CallGuard } from "../../core/stream/call-guard.js";
+import type { AiLimitWarning } from "../../core/stream/call-guard.js";
 import { collectResult } from "../../core/stream/collect-result.js";
 import { iterateOnce } from "../../core/stream/iterate-once.js";
-import { readSseEvents } from "../../core/stream/read-sse-events.js";
+import {
+  checkedBaseUrl,
+  invalidConfiguration,
+  readApiKey,
+  streamingCall,
+} from "../shared/streaming-call.js";
 import { httpError } from "./errors.js";
 import { ANTHROPIC, toAnthropicBody } from "./request.js";
 import { AnthropicStream } from "./stream.js";
@@ -59,22 +61,10 @@ export interface AnthropicOptions {
   readonly dangerouslyAllowBrowser?: boolean;
 }
 
-function invalidConfiguration(message: string): AiError {
-  return new AiError("INVALID_CONFIGURATION", message, { details: { retryable: false } });
-}
-
 function messagesUrl(baseURL: string | undefined): string {
-  let url: URL;
-  try {
-    url = new URL(baseURL ?? "https://api.anthropic.com");
-  } catch {
-    throw invalidConfiguration("baseURL isn't a valid URL.");
-  }
-  const local = url.hostname === "localhost" || url.hostname === "127.0.0.1";
-  if (url.protocol !== "https:" && !(url.protocol === "http:" && local)) {
-    throw invalidConfiguration("baseURL must use https: (or http: for localhost).");
-  }
-  return new URL("/v1/messages", url.origin).href;
+  // Only the origin is used: the path is Anthropic's.
+  return new URL("/v1/messages", checkedBaseUrl(baseURL ?? "https://api.anthropic.com").origin)
+    .href;
 }
 
 /**
@@ -109,77 +99,32 @@ export function createAnthropic(options: AnthropicOptions): AiProvider {
   const fetchImpl = options.fetch ?? ((input, init) => globalThis.fetch(input, init));
   // The key stays in this closure: never a property of the provider (ADR 0004).
   const { apiKey } = options;
-  const readKey = async (): Promise<string> => {
-    const key = typeof apiKey === "function" ? await apiKey() : apiKey;
-    if (typeof key !== "string" || key === "") {
-      throw new AiError("MISSING_API_KEY", "The Anthropic API key is missing or empty.", {
-        details: { retryable: false },
-      });
-    }
-    return key;
-  };
 
-  async function* call(
-    request: AiRequest,
-    signal: AbortSignal | undefined,
-  ): AsyncGenerator<AiEvent> {
-    let delivered = false;
-    let guard: CallGuard | undefined;
-    try {
-      if (signal?.aborted) {
-        throw abortError(signal);
-      }
-      assertKeyMayBeUsed(dangerouslyAllowBrowser);
-      const body = JSON.stringify(toAnthropicBody(request, defaults));
-      const headers: Record<string, string> = {
-        authorization: `Bearer ${await readKey()}`,
-        "anthropic-version": API_VERSION,
-        "content-type": "application/json",
-        accept: "text/event-stream",
-      };
-      if (dangerouslyAllowBrowser) {
-        headers["anthropic-dangerous-direct-browser-access"] = "true";
-      }
-      guard = new CallGuard({ policy, signal, onWarning: options.onWarning });
-      let response: Response;
-      try {
-        response = await fetchImpl(url, { method: "POST", headers, body, signal: guard.signal });
-      } catch {
-        // The platform's error isn't kept: it can carry request details (ADR 0004).
-        throw guard.signal.aborted ? guard.error() : networkError("POST", url);
-      }
-      if (!response.ok) {
-        throw await httpError(response);
-      }
-      if (!response.headers.get("content-type")?.includes("text/event-stream") || !response.body) {
-        response.body?.cancel().catch(() => undefined);
-        throw new AiError("PROVIDER_RESPONSE_INVALID", "The response isn't an event stream.", {
-          details: { retryable: false },
-        });
-      }
-      const stream = new AnthropicStream();
-      for await (const event of readSseEvents(response.body, guard)) {
-        for (const mapped of stream.push(event, delivered)) {
-          // One provider event can map to several: none goes out after an abort.
-          if (guard.signal.aborted) {
-            throw guard.error();
-          }
-          delivered = true;
-          yield mapped;
+  const call = (request: AiRequest, signal: AbortSignal | undefined): AsyncGenerator<AiEvent> =>
+    streamingCall({
+      url,
+      fetch: fetchImpl,
+      policy,
+      signal,
+      onWarning: options.onWarning,
+      dangerouslyAllowBrowser,
+      prepare: async () => {
+        const body = JSON.stringify(toAnthropicBody(request, defaults));
+        const headers: Record<string, string> = {
+          authorization: `Bearer ${await readApiKey(apiKey, "Anthropic")}`,
+          "anthropic-version": API_VERSION,
+          "content-type": "application/json",
+          accept: "text/event-stream",
+        };
+        if (dangerouslyAllowBrowser) {
+          headers["anthropic-dangerous-direct-browser-access"] = "true";
         }
-        if (stream.finished) {
-          break;
-        }
-      }
-      if (!stream.finished) {
-        throw new AiError("STREAM_TRUNCATED", "The response ended before message_stop.");
-      }
-    } catch (error) {
-      throw finishCallError(error, delivered);
-    } finally {
-      guard?.dispose();
-    }
-  }
+        return { headers, body };
+      },
+      httpError,
+      mapper: new AnthropicStream(),
+      truncatedMessage: "The response ended before message_stop.",
+    });
 
   return {
     provider: ANTHROPIC,
