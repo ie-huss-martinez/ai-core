@@ -13,9 +13,9 @@ This is the package's promise. Anything that breaks it is a vulnerability.
   - **What:** the messages, system prompt, tool definitions and options of that one call, with the API key in the provider's authentication header. Images are sent as the bytes the host passed, never as URLs for the provider to fetch.
   - **When:** once per call. ai-core never retries on its own.
 - **The server handler** (`/server`) makes no request of its own. It runs the host's required `prepare` hook first, then calls the provider the host gave it.
-  - **Who decides:** `prepare` authenticates and rate-limits the caller, and sets the model, system prompt, tools and output budgets. The browser's request body only supplies messages and a small set of allowed options.
+  - **Who decides:** `prepare` authenticates and rate-limits the caller, and sets the model, system prompt, tools and output budgets. The browser's request body supplies only the conversation, and any other field is rejected.
   - **What it accepts:** only `POST` requests with `content-type: application/json`, within the request size limit.
-- **The browser transport** sends each call to the one URL the host configured, normally the host's own handler, and nowhere else.
+- **The browser transport** sends each call to the one URL the host configured, normally the host's own handler, and nowhere else. It holds no provider key, and sends only the conversation and the host's own headers.
 - **Keys stay on the server by default.** An adapter refuses to run in a browser page or browser worker unless the host passes `dangerouslyAllowBrowser: true`, for applications where users bring their own keys. A key is read only when a request is built. It never appears in errors, serialised errors, events, logs or the handler's responses.
 - **Responses are hostile input.** Response size, stream duration and idle time are limited, and so is the size of requests the handler accepts. Each limit fails with its own error code. Model output is delivered as data, never as markup, and tool calls are never executed automatically.
 
