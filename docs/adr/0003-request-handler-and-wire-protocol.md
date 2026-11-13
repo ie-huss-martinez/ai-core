@@ -11,6 +11,12 @@
   - settings from `prepare` that don't match `AiCallSettings`, such as a misspelt field or no `maxOutputTokens`, get 500 with `PREPARE_FAILED`;
   - the handler takes `onWarning` for `requestBytes`, as [0005](0005-limits-and-streams.md) describes;
   - an `ai-core` part whose `data` has no `context` string is `INVALID_REQUEST`.
+- **Amended:** 2026-11-13, with the transport's details:
+  - `url` is a path on the page's origin, such as `/api/chat`, or an absolute `https:` URL (`http:` only for `localhost`);
+  - `headers` can also be a function, called for each request, so a session token can be refreshed;
+  - it takes the response `limits` and `onWarning` of [0005](0005-limits-and-streams.md);
+  - a failed response that isn't the handler's own JSON error, such as a 401 or 429 that `prepare` returned, gets the provider code for its status, with `retryAfter` from its `retry-after` header;
+  - it ignores event types it doesn't know, so a later minor version can add events without a new protocol version.
 
 ## Context
 

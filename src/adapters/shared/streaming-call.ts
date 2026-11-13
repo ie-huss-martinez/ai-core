@@ -37,6 +37,11 @@ export interface StreamingCallOptions {
   readonly onWarning: ((warning: AiLimitWarning) => void) | undefined;
   readonly dangerouslyAllowBrowser: boolean;
   /**
+   * Whether the call carries a provider key. Defaults to `true`. The browser
+   * transport carries none, so the runtime check of ADR 0004 doesn't apply.
+   */
+  readonly holdsKey?: boolean;
+  /**
    * Builds the headers and body. It runs before anything is sent, so a
    * request it rejects, or a missing key, never reaches the provider.
    */
@@ -74,7 +79,9 @@ export async function* streamingCall(options: StreamingCallOptions): AsyncGenera
     if (options.signal?.aborted) {
       throw abortError(options.signal);
     }
-    assertKeyMayBeUsed(options.dangerouslyAllowBrowser);
+    if (options.holdsKey !== false) {
+      assertKeyMayBeUsed(options.dangerouslyAllowBrowser);
+    }
     const { headers, body } = await options.prepare();
     guard = new CallGuard({
       policy: options.policy,

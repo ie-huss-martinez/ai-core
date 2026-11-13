@@ -293,6 +293,18 @@ export interface AiUsage {
 }
 
 // @public
+export function httpTransport(options: HttpTransportOptions): AiProvider;
+
+// @public
+export interface HttpTransportOptions {
+    readonly fetch?: typeof fetch;
+    readonly headers?: Readonly<Record<string, string>> | (() => Readonly<Record<string, string>> | Promise<Readonly<Record<string, string>>>);
+    readonly limits?: ResponseLimitOverrides;
+    readonly onWarning?: (warning: AiLimitWarning) => void;
+    readonly url: string;
+}
+
+// @public
 export function isAiError<Code extends AiErrorCode = AiErrorCode>(value: unknown, code?: Code): value is AiError & {
     readonly code: Code;
 };

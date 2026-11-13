@@ -40,6 +40,18 @@ export async function readBody(
   if (request.body === null) {
     return "";
   }
+  if (request.body === undefined) {
+    // Firefox has no Request.body stream. Server runtimes all do, so only
+    // there is a body read whole, still after the content-length check.
+    let whole: Uint8Array;
+    try {
+      whole = new Uint8Array(await request.arrayBuffer());
+    } catch {
+      throw unreadable("The request body couldn't be read.");
+    }
+    measure(whole.byteLength);
+    return decode(whole);
+  }
   const reader = request.body.getReader();
   const chunks: Uint8Array[] = [];
   let total = 0;
@@ -64,6 +76,10 @@ export async function readBody(
     bytes.set(chunk, offset);
     offset += chunk.byteLength;
   }
+  return decode(bytes);
+}
+
+function decode(bytes: Uint8Array): string {
   try {
     return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
   } catch {
