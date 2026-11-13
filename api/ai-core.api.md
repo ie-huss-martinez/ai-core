@@ -36,6 +36,17 @@ export const aiCoreMessages: {
     readonly "errors.STREAM_IDLE": "The assistant stopped responding for {maximum, duration}, so the response was stopped. Please try again.";
     readonly "errors.STREAM_TRUNCATED": "The response was cut off. Please try again.";
     readonly "errors.PROVIDER_RESPONSE_INVALID": "The assistant sent a response that couldn't be read. Please try again.";
+    readonly "errors.PROVIDER_INVALID_REQUEST": "The assistant couldn't process this message. Please try again.";
+    readonly "errors.PROVIDER_AUTHENTICATION": "The assistant isn't set up correctly. Please contact the site's support.";
+    readonly "errors.PROVIDER_BILLING": "The assistant isn't available right now. Please try again later.";
+    readonly "errors.PROVIDER_PERMISSION": "The assistant isn't set up correctly. Please contact the site's support.";
+    readonly "errors.PROVIDER_NOT_FOUND": "The assistant isn't set up correctly. Please contact the site's support.";
+    readonly "errors.PROVIDER_REQUEST_TOO_LARGE": "This conversation is too long for the assistant. Start a new conversation to continue.";
+    readonly "errors.PROVIDER_RATE_LIMITED": "The assistant is busy. Please try again in a moment.";
+    readonly "errors.PROVIDER_OVERLOADED": "The assistant is busy. Please try again in a moment.";
+    readonly "errors.PROVIDER_TIMEOUT": "The assistant took too long to respond. Please try again.";
+    readonly "errors.PROVIDER_ERROR": "The assistant ran into a problem. Please try again.";
+    readonly "errors.NETWORK_ERROR": "The assistant couldn't be reached. Check your connection and try again.";
     readonly "errors.SPEND_LIMIT_REACHED": "The assistant has reached its usage limit. Please try again later.";
     readonly "warnings.responseBytes": "This response is large ({actual, fileSize}), and may be slow to show.";
     readonly "warnings.streamDuration": "This response is taking a long time.";
@@ -94,7 +105,7 @@ export class AiError extends SdkError<AiErrorCode> {
 }
 
 // @public
-export type AiErrorCode = SdkCoreErrorCode | "INVALID_CONFIGURATION" | "INVALID_REQUEST" | "MISSING_API_KEY" | "BROWSER_KEY_REFUSED" | "METHOD_NOT_ALLOWED" | "UNSUPPORTED_MEDIA_TYPE" | "ORIGIN_NOT_ALLOWED" | "PROTOCOL_MISMATCH" | "CONTEXT_CHANGED" | "PREPARE_FAILED" | "REQUEST_TOO_LARGE" | "RESPONSE_TOO_LARGE" | "STREAM_TIMEOUT" | "STREAM_IDLE" | "STREAM_TRUNCATED" | "PROVIDER_RESPONSE_INVALID" | "SPEND_LIMIT_REACHED";
+export type AiErrorCode = SdkCoreErrorCode | "INVALID_CONFIGURATION" | "INVALID_REQUEST" | "MISSING_API_KEY" | "BROWSER_KEY_REFUSED" | "METHOD_NOT_ALLOWED" | "UNSUPPORTED_MEDIA_TYPE" | "ORIGIN_NOT_ALLOWED" | "PROTOCOL_MISMATCH" | "CONTEXT_CHANGED" | "PREPARE_FAILED" | "REQUEST_TOO_LARGE" | "RESPONSE_TOO_LARGE" | "STREAM_TIMEOUT" | "STREAM_IDLE" | "STREAM_TRUNCATED" | "PROVIDER_RESPONSE_INVALID" | "PROVIDER_INVALID_REQUEST" | "PROVIDER_AUTHENTICATION" | "PROVIDER_BILLING" | "PROVIDER_PERMISSION" | "PROVIDER_NOT_FOUND" | "PROVIDER_REQUEST_TOO_LARGE" | "PROVIDER_RATE_LIMITED" | "PROVIDER_OVERLOADED" | "PROVIDER_TIMEOUT" | "PROVIDER_ERROR" | "NETWORK_ERROR" | "SPEND_LIMIT_REACHED";
 
 // @public
 export type AiEvent = AiTextDeltaEvent | AiSummaryDeltaEvent | AiPartEvent | AiFinishEvent;

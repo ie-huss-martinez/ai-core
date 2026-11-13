@@ -40,10 +40,24 @@ import {
  * - `PROVIDER_RESPONSE_INVALID`: a response couldn't be decoded or parsed,
  *   or its events came in an impossible order.
  *
- * Providers:
+ * Providers, with `details.retryable` saying whether the same call can
+ * succeed later (ADR 0007):
  *
+ * - `PROVIDER_INVALID_REQUEST` (400), `PROVIDER_AUTHENTICATION` (401),
+ *   `PROVIDER_BILLING` (402), `PROVIDER_PERMISSION` (403),
+ *   `PROVIDER_NOT_FOUND` (404) and `PROVIDER_REQUEST_TOO_LARGE` (413): not
+ *   retryable.
+ * - `PROVIDER_RATE_LIMITED` (429), `PROVIDER_OVERLOADED` (503, 529),
+ *   `PROVIDER_TIMEOUT` (408, 504): retryable, after `details.retryAfter`
+ *   seconds when the provider sent one.
+ * - `PROVIDER_ERROR`: any other failure; retryable for 5xx statuses.
+ * - `NETWORK_ERROR`: the request got no response. Retryable.
  * - `SPEND_LIMIT_REACHED`: the provider account's spending cap was reached.
  *   Retrying fails until the provider restores access.
+ *
+ * Provider errors' `details` may also hold the `status`, the provider's
+ * error type (`providerType`), its `requestId`, and `partial: true` when
+ * events were already delivered.
  *
  * `details` never contain keys, prompts, model output, or request or
  * response bodies.
@@ -68,6 +82,17 @@ export type AiErrorCode =
   | "STREAM_IDLE"
   | "STREAM_TRUNCATED"
   | "PROVIDER_RESPONSE_INVALID"
+  | "PROVIDER_INVALID_REQUEST"
+  | "PROVIDER_AUTHENTICATION"
+  | "PROVIDER_BILLING"
+  | "PROVIDER_PERMISSION"
+  | "PROVIDER_NOT_FOUND"
+  | "PROVIDER_REQUEST_TOO_LARGE"
+  | "PROVIDER_RATE_LIMITED"
+  | "PROVIDER_OVERLOADED"
+  | "PROVIDER_TIMEOUT"
+  | "PROVIDER_ERROR"
+  | "NETWORK_ERROR"
   | "SPEND_LIMIT_REACHED";
 
 /**
