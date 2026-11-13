@@ -1,0 +1,2229 @@
+{
+  "format": "hm-conformance",
+  "version": 1,
+  "subject": "hm-ai-sse-framing",
+  "description": "How text/event-stream bytes become events, as ai-core's readers see them (docs/formats/hm-ai-protocol.md, Framing). input.chunks are the body's chunks in order, each as base64. expected.events are the events dispatched, each with its type in event, its data, and the last ID when one was set, or the rejection's code and reason. The expected events are written by hand from the WHATWG rules; scripts/generate-sse-vectors.py only splits the bytes.",
+  "cases": [
+    {
+      "name": "one event, LF line ends",
+      "input": {
+        "chunks": ["ZXZlbnQ6IHBpbmcKZGF0YToge30KCg=="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "ping",
+            "data": "{}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "one event, LF line ends, split at byte 1",
+      "input": {
+        "chunks": ["ZQ==", "dmVudDogcGluZwpkYXRhOiB7fQoK"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "ping",
+            "data": "{}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "one event, LF line ends, split at byte 2",
+      "input": {
+        "chunks": ["ZXY=", "ZW50OiBwaW5nCmRhdGE6IHt9Cgo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "ping",
+            "data": "{}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "one event, LF line ends, split at byte 3",
+      "input": {
+        "chunks": ["ZXZl", "bnQ6IHBpbmcKZGF0YToge30KCg=="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "ping",
+            "data": "{}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "one event, LF line ends, split at byte 4",
+      "input": {
+        "chunks": ["ZXZlbg==", "dDogcGluZwpkYXRhOiB7fQoK"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "ping",
+            "data": "{}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "one event, LF line ends, split at byte 5",
+      "input": {
+        "chunks": ["ZXZlbnQ=", "OiBwaW5nCmRhdGE6IHt9Cgo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "ping",
+            "data": "{}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "one event, LF line ends, split at byte 6",
+      "input": {
+        "chunks": ["ZXZlbnQ6", "IHBpbmcKZGF0YToge30KCg=="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "ping",
+            "data": "{}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "one event, LF line ends, split at byte 7",
+      "input": {
+        "chunks": ["ZXZlbnQ6IA==", "cGluZwpkYXRhOiB7fQoK"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "ping",
+            "data": "{}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "one event, LF line ends, split at byte 8",
+      "input": {
+        "chunks": ["ZXZlbnQ6IHA=", "aW5nCmRhdGE6IHt9Cgo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "ping",
+            "data": "{}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "one event, LF line ends, split at byte 9",
+      "input": {
+        "chunks": ["ZXZlbnQ6IHBp", "bmcKZGF0YToge30KCg=="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "ping",
+            "data": "{}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "one event, LF line ends, split at byte 10",
+      "input": {
+        "chunks": ["ZXZlbnQ6IHBpbg==", "ZwpkYXRhOiB7fQoK"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "ping",
+            "data": "{}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "one event, LF line ends, split at byte 11",
+      "input": {
+        "chunks": ["ZXZlbnQ6IHBpbmc=", "CmRhdGE6IHt9Cgo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "ping",
+            "data": "{}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "one event, LF line ends, split at byte 12",
+      "input": {
+        "chunks": ["ZXZlbnQ6IHBpbmcK", "ZGF0YToge30KCg=="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "ping",
+            "data": "{}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "one event, LF line ends, split at byte 13",
+      "input": {
+        "chunks": ["ZXZlbnQ6IHBpbmcKZA==", "YXRhOiB7fQoK"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "ping",
+            "data": "{}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "one event, LF line ends, split at byte 14",
+      "input": {
+        "chunks": ["ZXZlbnQ6IHBpbmcKZGE=", "dGE6IHt9Cgo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "ping",
+            "data": "{}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "one event, LF line ends, split at byte 15",
+      "input": {
+        "chunks": ["ZXZlbnQ6IHBpbmcKZGF0", "YToge30KCg=="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "ping",
+            "data": "{}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "one event, LF line ends, split at byte 16",
+      "input": {
+        "chunks": ["ZXZlbnQ6IHBpbmcKZGF0YQ==", "OiB7fQoK"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "ping",
+            "data": "{}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "one event, LF line ends, split at byte 17",
+      "input": {
+        "chunks": ["ZXZlbnQ6IHBpbmcKZGF0YTo=", "IHt9Cgo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "ping",
+            "data": "{}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "one event, LF line ends, split at byte 18",
+      "input": {
+        "chunks": ["ZXZlbnQ6IHBpbmcKZGF0YTog", "e30KCg=="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "ping",
+            "data": "{}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "one event, LF line ends, split at byte 19",
+      "input": {
+        "chunks": ["ZXZlbnQ6IHBpbmcKZGF0YTogew==", "fQoK"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "ping",
+            "data": "{}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "one event, LF line ends, split at byte 20",
+      "input": {
+        "chunks": ["ZXZlbnQ6IHBpbmcKZGF0YToge30=", "Cgo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "ping",
+            "data": "{}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "one event, LF line ends, split at byte 21",
+      "input": {
+        "chunks": ["ZXZlbnQ6IHBpbmcKZGF0YToge30K", "Cg=="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "ping",
+            "data": "{}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CRLF line ends",
+      "input": {
+        "chunks": ["ZXZlbnQ6IGENCmRhdGE6IDENCg0K"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "a",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CRLF line ends, split at byte 1",
+      "input": {
+        "chunks": ["ZQ==", "dmVudDogYQ0KZGF0YTogMQ0KDQo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "a",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CRLF line ends, split at byte 2",
+      "input": {
+        "chunks": ["ZXY=", "ZW50OiBhDQpkYXRhOiAxDQoNCg=="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "a",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CRLF line ends, split at byte 3",
+      "input": {
+        "chunks": ["ZXZl", "bnQ6IGENCmRhdGE6IDENCg0K"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "a",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CRLF line ends, split at byte 4",
+      "input": {
+        "chunks": ["ZXZlbg==", "dDogYQ0KZGF0YTogMQ0KDQo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "a",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CRLF line ends, split at byte 5",
+      "input": {
+        "chunks": ["ZXZlbnQ=", "OiBhDQpkYXRhOiAxDQoNCg=="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "a",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CRLF line ends, split at byte 6",
+      "input": {
+        "chunks": ["ZXZlbnQ6", "IGENCmRhdGE6IDENCg0K"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "a",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CRLF line ends, split at byte 7",
+      "input": {
+        "chunks": ["ZXZlbnQ6IA==", "YQ0KZGF0YTogMQ0KDQo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "a",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CRLF line ends, split at byte 8",
+      "input": {
+        "chunks": ["ZXZlbnQ6IGE=", "DQpkYXRhOiAxDQoNCg=="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "a",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CRLF line ends, split at byte 9",
+      "input": {
+        "chunks": ["ZXZlbnQ6IGEN", "CmRhdGE6IDENCg0K"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "a",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CRLF line ends, split at byte 10",
+      "input": {
+        "chunks": ["ZXZlbnQ6IGENCg==", "ZGF0YTogMQ0KDQo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "a",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CRLF line ends, split at byte 11",
+      "input": {
+        "chunks": ["ZXZlbnQ6IGENCmQ=", "YXRhOiAxDQoNCg=="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "a",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CRLF line ends, split at byte 12",
+      "input": {
+        "chunks": ["ZXZlbnQ6IGENCmRh", "dGE6IDENCg0K"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "a",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CRLF line ends, split at byte 13",
+      "input": {
+        "chunks": ["ZXZlbnQ6IGENCmRhdA==", "YTogMQ0KDQo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "a",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CRLF line ends, split at byte 14",
+      "input": {
+        "chunks": ["ZXZlbnQ6IGENCmRhdGE=", "OiAxDQoNCg=="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "a",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CRLF line ends, split at byte 15",
+      "input": {
+        "chunks": ["ZXZlbnQ6IGENCmRhdGE6", "IDENCg0K"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "a",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CRLF line ends, split at byte 16",
+      "input": {
+        "chunks": ["ZXZlbnQ6IGENCmRhdGE6IA==", "MQ0KDQo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "a",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CRLF line ends, split at byte 17",
+      "input": {
+        "chunks": ["ZXZlbnQ6IGENCmRhdGE6IDE=", "DQoNCg=="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "a",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CRLF line ends, split at byte 18",
+      "input": {
+        "chunks": ["ZXZlbnQ6IGENCmRhdGE6IDEN", "Cg0K"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "a",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CRLF line ends, split at byte 19",
+      "input": {
+        "chunks": ["ZXZlbnQ6IGENCmRhdGE6IDENCg==", "DQo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "a",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CRLF line ends, split at byte 20",
+      "input": {
+        "chunks": ["ZXZlbnQ6IGENCmRhdGE6IDENCg0=", "Cg=="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "a",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CR line ends",
+      "input": {
+        "chunks": ["ZXZlbnQ6IGENZGF0YTogMQ0N"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "a",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CR line ends, split at byte 1",
+      "input": {
+        "chunks": ["ZQ==", "dmVudDogYQ1kYXRhOiAxDQ0="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "a",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CR line ends, split at byte 2",
+      "input": {
+        "chunks": ["ZXY=", "ZW50OiBhDWRhdGE6IDENDQ=="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "a",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CR line ends, split at byte 3",
+      "input": {
+        "chunks": ["ZXZl", "bnQ6IGENZGF0YTogMQ0N"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "a",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CR line ends, split at byte 4",
+      "input": {
+        "chunks": ["ZXZlbg==", "dDogYQ1kYXRhOiAxDQ0="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "a",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CR line ends, split at byte 5",
+      "input": {
+        "chunks": ["ZXZlbnQ=", "OiBhDWRhdGE6IDENDQ=="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "a",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CR line ends, split at byte 6",
+      "input": {
+        "chunks": ["ZXZlbnQ6", "IGENZGF0YTogMQ0N"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "a",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CR line ends, split at byte 7",
+      "input": {
+        "chunks": ["ZXZlbnQ6IA==", "YQ1kYXRhOiAxDQ0="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "a",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CR line ends, split at byte 8",
+      "input": {
+        "chunks": ["ZXZlbnQ6IGE=", "DWRhdGE6IDENDQ=="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "a",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CR line ends, split at byte 9",
+      "input": {
+        "chunks": ["ZXZlbnQ6IGEN", "ZGF0YTogMQ0N"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "a",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CR line ends, split at byte 10",
+      "input": {
+        "chunks": ["ZXZlbnQ6IGENZA==", "YXRhOiAxDQ0="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "a",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CR line ends, split at byte 11",
+      "input": {
+        "chunks": ["ZXZlbnQ6IGENZGE=", "dGE6IDENDQ=="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "a",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CR line ends, split at byte 12",
+      "input": {
+        "chunks": ["ZXZlbnQ6IGENZGF0", "YTogMQ0N"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "a",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CR line ends, split at byte 13",
+      "input": {
+        "chunks": ["ZXZlbnQ6IGENZGF0YQ==", "OiAxDQ0="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "a",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CR line ends, split at byte 14",
+      "input": {
+        "chunks": ["ZXZlbnQ6IGENZGF0YTo=", "IDENDQ=="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "a",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CR line ends, split at byte 15",
+      "input": {
+        "chunks": ["ZXZlbnQ6IGENZGF0YTog", "MQ0N"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "a",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CR line ends, split at byte 16",
+      "input": {
+        "chunks": ["ZXZlbnQ6IGENZGF0YTogMQ==", "DQ0="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "a",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CR line ends, split at byte 17",
+      "input": {
+        "chunks": ["ZXZlbnQ6IGENZGF0YTogMQ0=", "DQ=="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "a",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mixed line ends",
+      "input": {
+        "chunks": ["ZGF0YTogMQ0KCmRhdGE6IDINDWRhdGE6IDMKDQo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "1"
+          },
+          {
+            "event": "message",
+            "data": "2"
+          },
+          {
+            "event": "message",
+            "data": "3"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mixed line ends, split at byte 1",
+      "input": {
+        "chunks": ["ZA==", "YXRhOiAxDQoKZGF0YTogMg0NZGF0YTogMwoNCg=="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "1"
+          },
+          {
+            "event": "message",
+            "data": "2"
+          },
+          {
+            "event": "message",
+            "data": "3"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mixed line ends, split at byte 2",
+      "input": {
+        "chunks": ["ZGE=", "dGE6IDENCgpkYXRhOiAyDQ1kYXRhOiAzCg0K"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "1"
+          },
+          {
+            "event": "message",
+            "data": "2"
+          },
+          {
+            "event": "message",
+            "data": "3"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mixed line ends, split at byte 3",
+      "input": {
+        "chunks": ["ZGF0", "YTogMQ0KCmRhdGE6IDINDWRhdGE6IDMKDQo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "1"
+          },
+          {
+            "event": "message",
+            "data": "2"
+          },
+          {
+            "event": "message",
+            "data": "3"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mixed line ends, split at byte 4",
+      "input": {
+        "chunks": ["ZGF0YQ==", "OiAxDQoKZGF0YTogMg0NZGF0YTogMwoNCg=="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "1"
+          },
+          {
+            "event": "message",
+            "data": "2"
+          },
+          {
+            "event": "message",
+            "data": "3"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mixed line ends, split at byte 5",
+      "input": {
+        "chunks": ["ZGF0YTo=", "IDENCgpkYXRhOiAyDQ1kYXRhOiAzCg0K"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "1"
+          },
+          {
+            "event": "message",
+            "data": "2"
+          },
+          {
+            "event": "message",
+            "data": "3"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mixed line ends, split at byte 6",
+      "input": {
+        "chunks": ["ZGF0YTog", "MQ0KCmRhdGE6IDINDWRhdGE6IDMKDQo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "1"
+          },
+          {
+            "event": "message",
+            "data": "2"
+          },
+          {
+            "event": "message",
+            "data": "3"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mixed line ends, split at byte 7",
+      "input": {
+        "chunks": ["ZGF0YTogMQ==", "DQoKZGF0YTogMg0NZGF0YTogMwoNCg=="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "1"
+          },
+          {
+            "event": "message",
+            "data": "2"
+          },
+          {
+            "event": "message",
+            "data": "3"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mixed line ends, split at byte 8",
+      "input": {
+        "chunks": ["ZGF0YTogMQ0=", "CgpkYXRhOiAyDQ1kYXRhOiAzCg0K"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "1"
+          },
+          {
+            "event": "message",
+            "data": "2"
+          },
+          {
+            "event": "message",
+            "data": "3"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mixed line ends, split at byte 9",
+      "input": {
+        "chunks": ["ZGF0YTogMQ0K", "CmRhdGE6IDINDWRhdGE6IDMKDQo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "1"
+          },
+          {
+            "event": "message",
+            "data": "2"
+          },
+          {
+            "event": "message",
+            "data": "3"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mixed line ends, split at byte 10",
+      "input": {
+        "chunks": ["ZGF0YTogMQ0KCg==", "ZGF0YTogMg0NZGF0YTogMwoNCg=="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "1"
+          },
+          {
+            "event": "message",
+            "data": "2"
+          },
+          {
+            "event": "message",
+            "data": "3"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mixed line ends, split at byte 11",
+      "input": {
+        "chunks": ["ZGF0YTogMQ0KCmQ=", "YXRhOiAyDQ1kYXRhOiAzCg0K"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "1"
+          },
+          {
+            "event": "message",
+            "data": "2"
+          },
+          {
+            "event": "message",
+            "data": "3"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mixed line ends, split at byte 12",
+      "input": {
+        "chunks": ["ZGF0YTogMQ0KCmRh", "dGE6IDINDWRhdGE6IDMKDQo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "1"
+          },
+          {
+            "event": "message",
+            "data": "2"
+          },
+          {
+            "event": "message",
+            "data": "3"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mixed line ends, split at byte 13",
+      "input": {
+        "chunks": ["ZGF0YTogMQ0KCmRhdA==", "YTogMg0NZGF0YTogMwoNCg=="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "1"
+          },
+          {
+            "event": "message",
+            "data": "2"
+          },
+          {
+            "event": "message",
+            "data": "3"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mixed line ends, split at byte 14",
+      "input": {
+        "chunks": ["ZGF0YTogMQ0KCmRhdGE=", "OiAyDQ1kYXRhOiAzCg0K"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "1"
+          },
+          {
+            "event": "message",
+            "data": "2"
+          },
+          {
+            "event": "message",
+            "data": "3"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mixed line ends, split at byte 15",
+      "input": {
+        "chunks": ["ZGF0YTogMQ0KCmRhdGE6", "IDINDWRhdGE6IDMKDQo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "1"
+          },
+          {
+            "event": "message",
+            "data": "2"
+          },
+          {
+            "event": "message",
+            "data": "3"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mixed line ends, split at byte 16",
+      "input": {
+        "chunks": ["ZGF0YTogMQ0KCmRhdGE6IA==", "Mg0NZGF0YTogMwoNCg=="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "1"
+          },
+          {
+            "event": "message",
+            "data": "2"
+          },
+          {
+            "event": "message",
+            "data": "3"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mixed line ends, split at byte 17",
+      "input": {
+        "chunks": ["ZGF0YTogMQ0KCmRhdGE6IDI=", "DQ1kYXRhOiAzCg0K"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "1"
+          },
+          {
+            "event": "message",
+            "data": "2"
+          },
+          {
+            "event": "message",
+            "data": "3"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mixed line ends, split at byte 18",
+      "input": {
+        "chunks": ["ZGF0YTogMQ0KCmRhdGE6IDIN", "DWRhdGE6IDMKDQo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "1"
+          },
+          {
+            "event": "message",
+            "data": "2"
+          },
+          {
+            "event": "message",
+            "data": "3"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mixed line ends, split at byte 19",
+      "input": {
+        "chunks": ["ZGF0YTogMQ0KCmRhdGE6IDINDQ==", "ZGF0YTogMwoNCg=="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "1"
+          },
+          {
+            "event": "message",
+            "data": "2"
+          },
+          {
+            "event": "message",
+            "data": "3"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mixed line ends, split at byte 20",
+      "input": {
+        "chunks": ["ZGF0YTogMQ0KCmRhdGE6IDINDWQ=", "YXRhOiAzCg0K"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "1"
+          },
+          {
+            "event": "message",
+            "data": "2"
+          },
+          {
+            "event": "message",
+            "data": "3"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mixed line ends, split at byte 21",
+      "input": {
+        "chunks": ["ZGF0YTogMQ0KCmRhdGE6IDINDWRh", "dGE6IDMKDQo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "1"
+          },
+          {
+            "event": "message",
+            "data": "2"
+          },
+          {
+            "event": "message",
+            "data": "3"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mixed line ends, split at byte 22",
+      "input": {
+        "chunks": ["ZGF0YTogMQ0KCmRhdGE6IDINDWRhdA==", "YTogMwoNCg=="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "1"
+          },
+          {
+            "event": "message",
+            "data": "2"
+          },
+          {
+            "event": "message",
+            "data": "3"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mixed line ends, split at byte 23",
+      "input": {
+        "chunks": ["ZGF0YTogMQ0KCmRhdGE6IDINDWRhdGE=", "OiAzCg0K"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "1"
+          },
+          {
+            "event": "message",
+            "data": "2"
+          },
+          {
+            "event": "message",
+            "data": "3"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mixed line ends, split at byte 24",
+      "input": {
+        "chunks": ["ZGF0YTogMQ0KCmRhdGE6IDINDWRhdGE6", "IDMKDQo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "1"
+          },
+          {
+            "event": "message",
+            "data": "2"
+          },
+          {
+            "event": "message",
+            "data": "3"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mixed line ends, split at byte 25",
+      "input": {
+        "chunks": ["ZGF0YTogMQ0KCmRhdGE6IDINDWRhdGE6IA==", "MwoNCg=="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "1"
+          },
+          {
+            "event": "message",
+            "data": "2"
+          },
+          {
+            "event": "message",
+            "data": "3"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mixed line ends, split at byte 26",
+      "input": {
+        "chunks": ["ZGF0YTogMQ0KCmRhdGE6IDINDWRhdGE6IDM=", "Cg0K"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "1"
+          },
+          {
+            "event": "message",
+            "data": "2"
+          },
+          {
+            "event": "message",
+            "data": "3"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mixed line ends, split at byte 27",
+      "input": {
+        "chunks": ["ZGF0YTogMQ0KCmRhdGE6IDINDWRhdGE6IDMK", "DQo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "1"
+          },
+          {
+            "event": "message",
+            "data": "2"
+          },
+          {
+            "event": "message",
+            "data": "3"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mixed line ends, split at byte 28",
+      "input": {
+        "chunks": ["ZGF0YTogMQ0KCmRhdGE6IDINDWRhdGE6IDMKDQ==", "Cg=="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "1"
+          },
+          {
+            "event": "message",
+            "data": "2"
+          },
+          {
+            "event": "message",
+            "data": "3"
+          }
+        ]
+      }
+    },
+    {
+      "name": "a CR at the end of a chunk, then LF, is one line end",
+      "input": {
+        "chunks": ["ZGF0YTogYQ0KDQo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "a"
+          }
+        ]
+      }
+    },
+    {
+      "name": "a CR at the end of a chunk, then LF, is one line end, split at byte 8",
+      "input": {
+        "chunks": ["ZGF0YTogYQ0=", "Cg0K"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "a"
+          }
+        ]
+      }
+    },
+    {
+      "name": "a CR at the end of a chunk, then LF, is one line end, split at byte 9",
+      "input": {
+        "chunks": ["ZGF0YTogYQ0K", "DQo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "a"
+          }
+        ]
+      }
+    },
+    {
+      "name": "a CR at the end of a chunk, then another line, is a line end",
+      "input": {
+        "chunks": ["ZGF0YTogYQ1kYXRhOiBiDQ0="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "a\nb"
+          }
+        ]
+      }
+    },
+    {
+      "name": "a CR at the end of a chunk, then another line, is a line end, split at byte 8",
+      "input": {
+        "chunks": ["ZGF0YTogYQ0=", "ZGF0YTogYg0N"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "a\nb"
+          }
+        ]
+      }
+    },
+    {
+      "name": "a CR at the very end of the stream still ends its line",
+      "input": {
+        "chunks": ["ZGF0YTogYQ0N"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "a"
+          }
+        ]
+      }
+    },
+    {
+      "name": "a CR at the very end of the stream still ends its line, split at byte 8",
+      "input": {
+        "chunks": ["ZGF0YTogYQ0=", "DQ=="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "a"
+          }
+        ]
+      }
+    },
+    {
+      "name": "a type without data dispatches nothing, and resets the type",
+      "input": {
+        "chunks": ["ZXZlbnQ6IGEKCmRhdGE6IDEKCg=="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "several data lines are joined with LF",
+      "input": {
+        "chunks": ["ZGF0YTogYQpkYXRhOiBiCmRhdGE6Cgo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "a\nb\n"
+          }
+        ]
+      }
+    },
+    {
+      "name": "one space after the colon is dropped, and only one",
+      "input": {
+        "chunks": ["ZGF0YTp4CgpkYXRhOiAgeQoK"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "x"
+          },
+          {
+            "event": "message",
+            "data": " y"
+          }
+        ]
+      }
+    },
+    {
+      "name": "a line without a colon is a field with an empty value",
+      "input": {
+        "chunks": ["ZGF0YQoK"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": ""
+          }
+        ]
+      }
+    },
+    {
+      "name": "comments, retry and unknown fields are ignored",
+      "input": {
+        "chunks": ["OiBwaW5nCnJldHJ5OiAxMApmb286IGJhcgpkYXRhOiAxCgo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "a lone colon line is a comment",
+      "input": {
+        "chunks": ["OgpkYXRhOiAxCgo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "the last ID stays with later events",
+      "input": {
+        "chunks": ["aWQ6IDcKZGF0YTogYQoKZGF0YTogYgoK"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "a",
+            "id": "7"
+          },
+          {
+            "event": "message",
+            "data": "b",
+            "id": "7"
+          }
+        ]
+      }
+    },
+    {
+      "name": "an ID with NULL is ignored",
+      "input": {
+        "chunks": ["aWQ6IDEKZGF0YTogYQoKaWQ6IDIAMwpkYXRhOiBiCgo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "a",
+            "id": "1"
+          },
+          {
+            "event": "message",
+            "data": "b",
+            "id": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "an empty ID resets it",
+      "input": {
+        "chunks": ["aWQ6IDEKZGF0YTogYQoKaWQKZGF0YTogYgoK"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "a",
+            "id": "1"
+          },
+          {
+            "event": "message",
+            "data": "b",
+            "id": ""
+          }
+        ]
+      }
+    },
+    {
+      "name": "an event type keeps its trailing spaces",
+      "input": {
+        "chunks": ["ZXZlbnQ6IGEgIApkYXRhOiAxCgo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "a  ",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "an unfinished event at the end is discarded",
+      "input": {
+        "chunks": ["ZGF0YTogYQoKZGF0YTogYgo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "a"
+          }
+        ]
+      }
+    },
+    {
+      "name": "an empty stream has no events",
+      "input": {
+        "chunks": [""]
+      },
+      "expected": {
+        "events": []
+      }
+    },
+    {
+      "name": "a leading byte order mark is ignored",
+      "input": {
+        "chunks": ["77u/ZGF0YTogMQoK"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "a leading byte order mark is ignored, split at byte 1",
+      "input": {
+        "chunks": ["7w==", "u79kYXRhOiAxCgo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "a leading byte order mark is ignored, split at byte 2",
+      "input": {
+        "chunks": ["77s=", "v2RhdGE6IDEKCg=="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "a leading byte order mark is ignored, split at byte 3",
+      "input": {
+        "chunks": ["77u/", "ZGF0YTogMQoK"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "a byte order mark after the start is data",
+      "input": {
+        "chunks": ["ZGF0YTog77u/eAoK"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "\ufeffx"
+          }
+        ]
+      }
+    },
+    {
+      "name": "multi-byte characters, split anywhere",
+      "input": {
+        "chunks": ["ZGF0YTogw6nml6Xwn5iACgo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "\u00e9\u65e5\ud83d\ude00"
+          }
+        ]
+      }
+    },
+    {
+      "name": "multi-byte characters, split anywhere, split at byte 1",
+      "input": {
+        "chunks": ["ZA==", "YXRhOiDDqeaXpfCfmIAKCg=="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "\u00e9\u65e5\ud83d\ude00"
+          }
+        ]
+      }
+    },
+    {
+      "name": "multi-byte characters, split anywhere, split at byte 2",
+      "input": {
+        "chunks": ["ZGE=", "dGE6IMOp5pel8J+YgAoK"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "\u00e9\u65e5\ud83d\ude00"
+          }
+        ]
+      }
+    },
+    {
+      "name": "multi-byte characters, split anywhere, split at byte 3",
+      "input": {
+        "chunks": ["ZGF0", "YTogw6nml6Xwn5iACgo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "\u00e9\u65e5\ud83d\ude00"
+          }
+        ]
+      }
+    },
+    {
+      "name": "multi-byte characters, split anywhere, split at byte 4",
+      "input": {
+        "chunks": ["ZGF0YQ==", "OiDDqeaXpfCfmIAKCg=="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "\u00e9\u65e5\ud83d\ude00"
+          }
+        ]
+      }
+    },
+    {
+      "name": "multi-byte characters, split anywhere, split at byte 5",
+      "input": {
+        "chunks": ["ZGF0YTo=", "IMOp5pel8J+YgAoK"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "\u00e9\u65e5\ud83d\ude00"
+          }
+        ]
+      }
+    },
+    {
+      "name": "multi-byte characters, split anywhere, split at byte 6",
+      "input": {
+        "chunks": ["ZGF0YTog", "w6nml6Xwn5iACgo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "\u00e9\u65e5\ud83d\ude00"
+          }
+        ]
+      }
+    },
+    {
+      "name": "multi-byte characters, split anywhere, split at byte 7",
+      "input": {
+        "chunks": ["ZGF0YTogww==", "qeaXpfCfmIAKCg=="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "\u00e9\u65e5\ud83d\ude00"
+          }
+        ]
+      }
+    },
+    {
+      "name": "multi-byte characters, split anywhere, split at byte 8",
+      "input": {
+        "chunks": ["ZGF0YTogw6k=", "5pel8J+YgAoK"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "\u00e9\u65e5\ud83d\ude00"
+          }
+        ]
+      }
+    },
+    {
+      "name": "multi-byte characters, split anywhere, split at byte 9",
+      "input": {
+        "chunks": ["ZGF0YTogw6nm", "l6Xwn5iACgo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "\u00e9\u65e5\ud83d\ude00"
+          }
+        ]
+      }
+    },
+    {
+      "name": "multi-byte characters, split anywhere, split at byte 10",
+      "input": {
+        "chunks": ["ZGF0YTogw6nmlw==", "pfCfmIAKCg=="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "\u00e9\u65e5\ud83d\ude00"
+          }
+        ]
+      }
+    },
+    {
+      "name": "multi-byte characters, split anywhere, split at byte 11",
+      "input": {
+        "chunks": ["ZGF0YTogw6nml6U=", "8J+YgAoK"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "\u00e9\u65e5\ud83d\ude00"
+          }
+        ]
+      }
+    },
+    {
+      "name": "multi-byte characters, split anywhere, split at byte 12",
+      "input": {
+        "chunks": ["ZGF0YTogw6nml6Xw", "n5iACgo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "\u00e9\u65e5\ud83d\ude00"
+          }
+        ]
+      }
+    },
+    {
+      "name": "multi-byte characters, split anywhere, split at byte 13",
+      "input": {
+        "chunks": ["ZGF0YTogw6nml6Xwnw==", "mIAKCg=="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "\u00e9\u65e5\ud83d\ude00"
+          }
+        ]
+      }
+    },
+    {
+      "name": "multi-byte characters, split anywhere, split at byte 14",
+      "input": {
+        "chunks": ["ZGF0YTogw6nml6Xwn5g=", "gAoK"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "\u00e9\u65e5\ud83d\ude00"
+          }
+        ]
+      }
+    },
+    {
+      "name": "multi-byte characters, split anywhere, split at byte 15",
+      "input": {
+        "chunks": ["ZGF0YTogw6nml6Xwn5iA", "Cgo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "\u00e9\u65e5\ud83d\ude00"
+          }
+        ]
+      }
+    },
+    {
+      "name": "multi-byte characters, split anywhere, split at byte 16",
+      "input": {
+        "chunks": ["ZGF0YTogw6nml6Xwn5iACg==", "Cg=="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "\u00e9\u65e5\ud83d\ude00"
+          }
+        ]
+      }
+    },
+    {
+      "name": "line and paragraph separators are data, not line ends",
+      "input": {
+        "chunks": ["ZGF0YTogYeKAqGLigKljCgo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "a\u2028b\u2029c"
+          }
+        ]
+      }
+    },
+    {
+      "name": "JSON data with escaped line breaks stays on one line",
+      "input": {
+        "chunks": ["ZGF0YTogeyJ0ZXh0IjoiYVxuYiJ9Cgo="]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "message",
+            "data": "{\"text\":\"a\\nb\"}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "one byte per chunk, whole",
+      "input": {
+        "chunks": ["ZXZlbnQ6IHBhcnQNCmRhdGE6IHsidCI6IsOpIn0NCg0K"]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "part",
+            "data": "{\"t\":\"\u00e9\"}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "one byte per chunk, one byte per chunk",
+      "input": {
+        "chunks": [
+          "ZQ==",
+          "dg==",
+          "ZQ==",
+          "bg==",
+          "dA==",
+          "Og==",
+          "IA==",
+          "cA==",
+          "YQ==",
+          "cg==",
+          "dA==",
+          "DQ==",
+          "Cg==",
+          "ZA==",
+          "YQ==",
+          "dA==",
+          "YQ==",
+          "Og==",
+          "IA==",
+          "ew==",
+          "Ig==",
+          "dA==",
+          "Ig==",
+          "Og==",
+          "Ig==",
+          "ww==",
+          "qQ==",
+          "Ig==",
+          "fQ==",
+          "DQ==",
+          "Cg==",
+          "DQ==",
+          "Cg=="
+        ]
+      },
+      "expected": {
+        "events": [
+          {
+            "event": "part",
+            "data": "{\"t\":\"\u00e9\"}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "invalid UTF-8 is refused",
+      "input": {
+        "chunks": ["ZGF0YTog/woK"]
+      },
+      "expected": {
+        "error": {
+          "code": "PROVIDER_RESPONSE_INVALID",
+          "reason": "invalid-utf8"
+        }
+      }
+    },
+    {
+      "name": "an overlong encoding is refused",
+      "input": {
+        "chunks": ["ZGF0YTogwIAKCg=="]
+      },
+      "expected": {
+        "error": {
+          "code": "PROVIDER_RESPONSE_INVALID",
+          "reason": "invalid-utf8"
+        }
+      }
+    },
+    {
+      "name": "an encoded surrogate is refused",
+      "input": {
+        "chunks": ["ZGF0YTog7aCACgo="]
+      },
+      "expected": {
+        "error": {
+          "code": "PROVIDER_RESPONSE_INVALID",
+          "reason": "invalid-utf8"
+        }
+      }
+    },
+    {
+      "name": "a stream that ends inside a character is refused",
+      "input": {
+        "chunks": ["ZGF0YTog5pc="]
+      },
+      "expected": {
+        "error": {
+          "code": "PROVIDER_RESPONSE_INVALID",
+          "reason": "truncated-utf8"
+        }
+      }
+    }
+  ]
+}

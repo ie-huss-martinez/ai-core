@@ -6,7 +6,10 @@ import type { CallGuard } from "./call-guard.js";
 /** A short, safe name for an event, for `details`. Event names come from the provider. */
 const EVENT_NAME = /^[\w.-]{1,64}$/;
 
-function invalidResponse(message: string, details?: { event: string }): AiError {
+function invalidResponse(
+  message: string,
+  details?: { readonly event?: string; readonly reason?: string },
+): AiError {
   return new AiError("PROVIDER_RESPONSE_INVALID", message, details ? { details } : {});
 }
 
@@ -69,7 +72,7 @@ export async function* readSseEvents(
       try {
         text = decoder.decode(result.value, { stream: true });
       } catch {
-        throw invalidResponse("The response isn't valid UTF-8.");
+        throw invalidResponse("The response isn't valid UTF-8.", { reason: "invalid-utf8" });
       }
       for (const event of parser.push(text)) {
         // A chunk can hold several events: none goes out after an abort.
@@ -83,7 +86,9 @@ export async function* readSseEvents(
     try {
       rest = decoder.decode();
     } catch {
-      throw invalidResponse("The response ends in the middle of a UTF-8 character.");
+      throw invalidResponse("The response ends in the middle of a UTF-8 character.", {
+        reason: "truncated-utf8",
+      });
     }
     for (const event of [...parser.push(rest), ...parser.finish()]) {
       if (guard.signal.aborted) {
