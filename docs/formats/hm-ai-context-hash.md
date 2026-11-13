@@ -54,3 +54,5 @@ A port proves it computes the same hash by passing the vectors in [`conformance/
 | [`hm-ai-context-hash.json`](../../conformance/hm-ai-context-hash.json) | `hm-ai-context-hash` | The value of step 1, its canonical JSON and its hash: escapes, non-ASCII text, key order, tool order, hostile keys such as `__proto__`, and UTF-16 versus code-point ordering |
 
 Their expected values come from RFC 8785 and from an implementation independent of ai-core's, never from ai-core itself.
+
+[`scripts/generate-jcs-vectors.py`](../../scripts/generate-jcs-vectors.py) generates both files, with Python's standard library only. It's run by hand, never in CI.
