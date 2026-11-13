@@ -1,30 +1,15 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/api-extractor/v7/api-extractor.schema.json",
+  "extends": "@hussmartinez/sdk-config/api-extractor/base.json",
   "mainEntryPointFilePath": "<projectFolder>/temp/types/gemini.d.ts",
-  "newlineKind": "lf",
   "apiReport": {
     "enabled": true,
     "reportFileName": "<unscopedPackageName>-gemini.api.md",
     "reportFolder": "<projectFolder>/api/",
     "reportTempFolder": "<projectFolder>/temp/gemini/"
   },
-  "docModel": { "enabled": false },
   "dtsRollup": {
     "enabled": true,
-    "untrimmedFilePath": "",
     "publicTrimmedFilePath": "<projectFolder>/dist/gemini.d.ts"
-  },
-  "tsdocMetadata": { "enabled": false },
-  "messages": {
-    "compilerMessageReporting": {
-      "default": { "logLevel": "error" }
-    },
-    "extractorMessageReporting": {
-      "default": { "logLevel": "error" },
-      "ae-missing-release-tag": { "logLevel": "error" }
-    },
-    "tsdocMessageReporting": {
-      "default": { "logLevel": "error" }
-    }
   }
 }

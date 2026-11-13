@@ -69,6 +69,16 @@ describe("the built package", () => {
     }
   });
 
+  it("depends on no test framework, not even in ./testing (ADR 0002)", () => {
+    for (const file of files) {
+      if (file.type === "chunk") {
+        expect(
+          file.imports.filter((name) => /^(?:vitest|jest|@jest\/|node:test)/.test(name)),
+        ).toEqual([]);
+      }
+    }
+  });
+
   it("bundles no dependency and leaks no local paths", () => {
     for (const file of files) {
       if (file.type === "chunk") {

@@ -4,4 +4,54 @@
 
 ```ts
 
+import { SdkCoreErrorCode } from '@hussmartinez/sdk-core';
+import { SdkError } from '@hussmartinez/sdk-core';
+
+// @public
+export type ContractScenario = "text" | "tool-call" | "error" | "slow";
+
+// @public
+export interface ContractTestApi {
+    // (undocumented)
+    describe(name: string, body: () => void): void;
+    // (undocumented)
+    it(name: string, body: () => Promise<void>): void;
+}
+
+// Warning: (ae-forgotten-export) The symbol "AiRequest" needs to be exported by the entry point testing.d.ts
+//
+// @public
+export function createFakeProvider(turns: readonly FakeTurn[] | ((request: AiRequest, index: number) => FakeTurn), options?: FakeProviderOptions): FakeProvider;
+
+// Warning: (ae-forgotten-export) The symbol "AiProvider" needs to be exported by the entry point testing.d.ts
+//
+// @public
+export function defineProviderContract(makeProvider: (scenario: ContractScenario) => AiProvider | Promise<AiProvider>, api: ContractTestApi): void;
+
+// @public
+export interface FakeProvider extends AiProvider {
+    readonly requests: readonly AiRequest[];
+}
+
+// @public
+export interface FakeProviderOptions {
+    readonly provider?: string;
+}
+
+// @public
+export interface FakeTurn {
+    readonly chunkSize?: number;
+    // Warning: (ae-forgotten-export) The symbol "AiError" needs to be exported by the entry point testing.d.ts
+    readonly error?: AiError;
+    // Warning: (ae-forgotten-export) The symbol "AiFinishReason" needs to be exported by the entry point testing.d.ts
+    readonly finishReason?: AiFinishReason;
+    readonly hang?: boolean;
+    // Warning: (ae-forgotten-export) The symbol "AiPart" needs to be exported by the entry point testing.d.ts
+    readonly parts?: readonly AiPart[];
+    // (undocumented)
+    readonly rawFinishReason?: string;
+    // Warning: (ae-forgotten-export) The symbol "AiUsage" needs to be exported by the entry point testing.d.ts
+    readonly usage?: AiUsage;
+}
+
 ```
