@@ -149,8 +149,7 @@ export type AiLimitName = keyof ResponseLimitDefinitions | keyof RequestLimitDef
 // @public
 export interface AiLimitWarning {
     readonly actual: number;
-    // (undocumented)
-    readonly limit: "responseBytes" | "streamDuration" | "idleTime";
+    readonly limit: AiLimitName;
     readonly maximum: number;
 }
 
@@ -352,5 +351,8 @@ export const responseLimits: Limits<ResponseLimitDefinitions>;
 
 // @public
 export type ResponsePolicy = FilePolicy<ResponseLimitDefinitions>;
+
+// @public
+export function withoutProviderState(messages: readonly AiMessage[]): AiMessage[];
 
 ```

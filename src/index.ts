@@ -54,6 +54,7 @@ export type {
   AiTool,
   AiToolChoice,
 } from "./core/model/provider.js";
+export { withoutProviderState } from "./core/protocol/wire.js";
 export type { AiLimitWarning } from "./core/stream/call-guard.js";
 export type { AiCoreMessageCatalogue } from "./messages/en.js";
 export { aiCoreMessages } from "./messages/en.js";

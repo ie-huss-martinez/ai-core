@@ -4,4 +4,49 @@
 
 ```ts
 
+import { FilePolicyOverrides } from '@hussmartinez/sdk-core';
+
+// @public
+export interface AiCallSettings {
+    readonly maxOutputTokens: number;
+    readonly model?: string;
+    readonly providerOptions?: {
+        readonly [provider: string]: unknown;
+    };
+    readonly system?: string;
+    // Warning: (ae-forgotten-export) The symbol "AiToolChoice" needs to be exported by the entry point server.d.ts
+    readonly toolChoice?: AiToolChoice;
+    // Warning: (ae-forgotten-export) The symbol "AiTool" needs to be exported by the entry point server.d.ts
+    readonly tools?: readonly AiTool[];
+}
+
+// @public
+export interface AiHandlerBody {
+    // Warning: (ae-forgotten-export) The symbol "AiMessage" needs to be exported by the entry point server.d.ts
+    readonly messages: readonly AiMessage[];
+    readonly protocol: "ai-core/1";
+}
+
+// @public
+export interface AiHandlerOptions {
+    readonly allowedOrigins?: readonly string[];
+    // Warning: (ae-forgotten-export) The symbol "RequestLimitOverrides" needs to be exported by the entry point server.d.ts
+    readonly limits?: RequestLimitOverrides;
+    // Warning: (ae-forgotten-export) The symbol "AiLimitWarning" needs to be exported by the entry point server.d.ts
+    readonly onWarning?: (warning: AiLimitWarning) => void;
+    readonly prepare: (context: AiPrepareContext) => AiCallSettings | Response | Promise<AiCallSettings | Response>;
+    // Warning: (ae-forgotten-export) The symbol "AiProvider" needs to be exported by the entry point server.d.ts
+    readonly provider: AiProvider;
+}
+
+// @public
+export interface AiPrepareContext {
+    readonly body: AiHandlerBody;
+    readonly origin: string | null;
+    readonly request: Request;
+}
+
+// @public
+export function createAiHandler(options: AiHandlerOptions): (request: Request) => Promise<Response>;
+
 ```

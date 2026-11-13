@@ -12,6 +12,11 @@
  * 8.05 kB, unminified, with the stream parser, call guard and reader it
  * loads, which every adapter shares. 10 kB leaves room for the second and
  * third adapters without letting one grow unnoticed.
+ *
+ * Server handler: revisited with the handler. It measures 6.6 kB, unminified:
+ * the handler itself is 3.9 kB, and the strict message decoder it loads is
+ * 1.8 kB, which the browser transport will share. 8 kB leaves room for
+ * fixes, not for a second feature.
  */
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, normalize } from "node:path";
@@ -47,7 +52,7 @@ const entry = (name, file, limit) => ({
 
 export default [
   entry("Core and browser transport (.)", "index.js", "8 kB"),
-  entry("Server request handler (./server)", "server.js", "6 kB"),
+  entry("Server request handler (./server)", "server.js", "8 kB"),
   entry("Anthropic adapter (./anthropic)", "anthropic.js", "10 kB"),
   entry("Gemini adapter (./gemini)", "gemini.js", "10 kB"),
   entry(
