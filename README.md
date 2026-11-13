@@ -16,7 +16,7 @@ ai-core never asks a provider to keep your users' conversations ([ADR 0008](docs
 
 ## Development
 
-The repository root is the published package, laid out as in the family's [standard layout](https://github.com/ie-huss-martinez/sdk-core/blob/main/STANDARDS.md#repository-layout): the source is in [`src`](src), with one entry file per export (`.`, `./server`, `./anthropic`, `./gemini`, `./openai-compatible` and `./testing`). The examples and end-to-end tests will join the pnpm workspace as `examples/` and `e2e/`.
+The repository root is the published package, laid out as in the family's [standard layout](https://github.com/ie-huss-martinez/sdk-core/blob/main/STANDARDS.md#repository-layout): the source is in [`src`](src), with one entry file per export (`.`, `./server`, `./anthropic`, `./gemini`, `./openai-compatible` and `./testing`). The pnpm workspace also holds [`examples/next`](examples/next), a Next.js application that uses the built package, and [`e2e`](e2e), the Playwright suite that runs against it with a local stand-in for the provider.
 
 You need Node 24 (see [`.node-version`](.node-version)) and pnpm. The exact pnpm version is pinned in `package.json`, and pnpm switches to it automatically.
 

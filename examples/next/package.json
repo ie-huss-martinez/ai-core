@@ -1,0 +1,24 @@
+{
+  "name": "@hussmartinez/ai-core-example-next",
+  "private": true,
+  "description": "A Next.js App Router application that uses the built @hussmartinez/ai-core: createAiHandler in a route handler and httpTransport in the page, for the end-to-end tests.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "build": "NEXT_TELEMETRY_DISABLED=1 next build",
+    "start": "NEXT_TELEMETRY_DISABLED=1 next start --port 3300"
+  },
+  "dependencies": {
+    "@hussmartinez/ai-core": "workspace:*",
+    "@hussmartinez/sdk-core": "catalog:",
+    "next": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "typescript": "catalog:"
+  }
+}

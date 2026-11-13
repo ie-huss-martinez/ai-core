@@ -1,0 +1,18 @@
+{
+  "name": "@hussmartinez/ai-core-e2e",
+  "private": true,
+  "description": "End-to-end tests of @hussmartinez/ai-core in its Next.js example, against a local stand-in for the provider: streaming, provider state across turns, errors, cancelling, keys that stay on the server, no request to another origin, the documented Content Security Policy and accessibility.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test:e2e": "tsc --noEmit && playwright test"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "catalog:",
+    "@hussmartinez/sdk-config": "catalog:",
+    "@playwright/test": "catalog:",
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}
