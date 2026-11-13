@@ -2,6 +2,15 @@
 
 - **Status:** Accepted
 - **Date:** 2026-11-12
+- **Amended:** 2026-11-13, with details the implementation settled:
+  - an event's `data` holds its fields without `type`, which is in `event:`;
+  - errors cross the wire without their `cause`, which may hold server-side details, and a provider's failure that isn't an `AiError` is sent only as `UNKNOWN`;
+  - the handler removes its own `ai-core` parts from the history before calling the provider, and a message left empty is dropped. It also drops `ai-core` parts from the provider's events, so a stream has exactly one context part;
+  - with `allowedOrigins` set, a request with no `Origin` gets 403;
+  - a missing `protocol` is `INVALID_REQUEST`, and only another version is `PROTOCOL_MISMATCH`;
+  - settings from `prepare` that don't match `AiCallSettings`, such as a misspelt field or no `maxOutputTokens`, get 500 with `PREPARE_FAILED`;
+  - the handler takes `onWarning` for `requestBytes`, as [0005](0005-limits-and-streams.md) describes;
+  - an `ai-core` part whose `data` has no `context` string is `INVALID_REQUEST`.
 
 ## Context
 

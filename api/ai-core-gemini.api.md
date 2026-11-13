@@ -9,8 +9,8 @@ import { FilePolicyOverrides } from '@hussmartinez/sdk-core';
 // @public
 export interface AiLimitWarning {
     readonly actual: number;
-    // (undocumented)
-    readonly limit: "responseBytes" | "streamDuration" | "idleTime";
+    // Warning: (ae-forgotten-export) The symbol "AiLimitName" needs to be exported by the entry point gemini.d.ts
+    readonly limit: AiLimitName;
     readonly maximum: number;
 }
 

@@ -1,14 +1,16 @@
 import type { SdkError } from "@hussmartinez/sdk-core";
 import { AiError, abortError } from "../errors/ai-error.js";
-import type { ResponsePolicy } from "../limits/ai-limits.js";
+import type { AiLimitName, ResponsePolicy } from "../limits/ai-limits.js";
 
 /**
- * A response limit that a call has reached its warning threshold for.
+ * A limit that a call, or a request to the handler, has reached its warning
+ * threshold for (ADR 0005).
  *
  * @public
  */
 export interface AiLimitWarning {
-  readonly limit: "responseBytes" | "streamDuration" | "idleTime";
+  /** The limit: a response limit from an adapter or the transport, or `requestBytes` from the handler. */
+  readonly limit: AiLimitName;
   /** The measured value, in the limit's unit. */
   readonly actual: number;
   /** The limit's maximum. */

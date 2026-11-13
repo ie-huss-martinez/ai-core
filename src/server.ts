@@ -1,12 +1,18 @@
 /**
- * Server request handler: `createAiHandler`, which takes a provider and a
- * required `prepare` hook.
+ * Server request handler: `createAiHandler`, the endpoint the browser
+ * transport calls, with a required `prepare` hook (ADR 0003).
  *
  * @remarks
- * Runs in runtimes with the Fetch API, such as Next.js route handlers, Node,
- * Deno, Bun and Workers. It arrives in a later release.
+ * Runs in runtimes with the Fetch API, web streams and Web Crypto, such as
+ * Next.js route handlers, Node, Deno, Bun and Workers.
  *
  * @packageDocumentation
  */
 
-export {};
+export type {
+  AiCallSettings,
+  AiHandlerBody,
+  AiHandlerOptions,
+  AiPrepareContext,
+} from "./server/handler.js";
+export { createAiHandler } from "./server/handler.js";
