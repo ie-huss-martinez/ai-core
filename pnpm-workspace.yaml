@@ -10,8 +10,8 @@ catalog:
   "@changesets/changelog-github": ^1.0.1
   "@changesets/cli": ^3.0.3
   "@commitlint/cli": ^21.2.4
-  "@hussmartinez/sdk-config": ^0.2.1
-  "@hussmartinez/sdk-core": ^0.3.0
+  "@hussmartinez/sdk-config": ^0.5.0
+  "@hussmartinez/sdk-core": ^0.4.1
   "@microsoft/api-extractor": ^7.60.1
   "@size-limit/file": ^14.3.0
   "@types/node": ^24.19.2
@@ -34,6 +34,10 @@ allowBuilds: {}
 strictDepBuilds: true
 # Don't resolve versions published less than a day ago.
 minimumReleaseAge: 1440
+# The family's own packages are exempt, so a release can be adopted the day
+# it's published (sdk-core ADR 0044).
+minimumReleaseAgeExclude:
+  - "@hussmartinez/*"
 # Refuse a version with weaker publish provenance than an earlier one.
 trustPolicy: no-downgrade
 # Transitive dependencies must come from the registry, not git or tarball URLs.
