@@ -37,7 +37,6 @@ export type StreamReason =
   | "invalid-event-data"
   | "missing-start"
   | "duplicate-start"
-  | "unknown-field"
   | "invalid-delta"
   | "invalid-part"
   | "invalid-finish"
@@ -48,13 +47,6 @@ function invalid(message: string, reason: StreamReason): AiError {
   return new AiError("PROVIDER_RESPONSE_INVALID", message, {
     details: { reason, retryable: false },
   });
-}
-
-/** Refuses fields an event's data doesn't have, as the schema does. */
-function onlyFields(data: Json, allowed: readonly string[]): void {
-  if (Object.keys(data).some((key) => !allowed.includes(key))) {
-    throw invalid("An event has a field the protocol doesn't have.", "unknown-field");
-  }
 }
 
 /**
@@ -71,7 +63,6 @@ export function handlerError(data: unknown): AiError {
 }
 
 function text(data: Json): string {
-  onlyFields(data, ["text"]);
   if (typeof data["text"] !== "string") {
     throw invalid("A delta event has no text.", "invalid-delta");
   }
@@ -81,9 +72,6 @@ function text(data: Json): string {
 function usage(value: unknown): AiUsage {
   if (!isObject(value)) {
     throw invalid("A finish event has no usage.", "invalid-usage");
-  }
-  if (Object.keys(value).some((key) => !(USAGE_FIELDS as readonly string[]).includes(key))) {
-    throw invalid("A finish event's usage has a field the protocol doesn't have.", "unknown-field");
   }
   const result: { -readonly [Key in keyof AiUsage]: AiUsage[Key] } = {};
   for (const field of USAGE_FIELDS) {
@@ -101,15 +89,16 @@ function usage(value: unknown): AiUsage {
 
 /**
  * Maps the handler's `ai-core/1` events back to ai-core's events (ADR 0003),
- * checking them as hostile input like any provider's (ADR 0005), and as
- * strictly as `formats/hm-ai-protocol/v1.schema.json`:
+ * checking them as hostile input like any provider's (ADR 0005), as
+ * `formats/hm-ai-protocol/v1.schema.json` describes:
  *
  * - `start` first, with the same protocol version, and only once;
  * - deltas with their text, parts checked against the message model, and
- *   `finish` with a known reason and token counts, each with no other field;
+ *   `finish` with a known reason and token counts;
  * - an `error` event rebuilt as the handler's `AiError`;
- * - event types it doesn't know are ignored, so a later version can add
- *   events.
+ * - event types it doesn't know, and fields it doesn't know within the
+ *   events it does, are ignored, so a later minor version can add them
+ *   while pages still run the previous release's transport.
  *
  * @internal
  */
@@ -135,7 +124,6 @@ export class WireStream implements StreamMapper {
       if (event.event !== "start") {
         throw invalid("The stream didn't begin with a start event.", "missing-start");
       }
-      onlyFields(data, ["protocol"]);
       if (data["protocol"] !== AI_CORE_PROTOCOL) {
         throw protocolMismatch();
       }
@@ -148,14 +136,12 @@ export class WireStream implements StreamMapper {
       case "summary-delta":
         return [{ type: "summary-delta", text: text(data) }];
       case "part":
-        onlyFields(data, ["part"]);
         try {
           return [{ type: "part", part: decodePart(data["part"], "part") }];
         } catch {
           throw invalid("A part event doesn't match the message model.", "invalid-part");
         }
       case "finish": {
-        onlyFields(data, ["finishReason", "rawFinishReason", "usage"]);
         const finishReason = data["finishReason"];
         const raw = data["rawFinishReason"];
         if (typeof finishReason !== "string" || !FINISH_REASONS.has(finishReason)) {

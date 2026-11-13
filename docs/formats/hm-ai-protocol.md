@@ -8,7 +8,12 @@ The protocol between the browser transport (`httpTransport`) and the request han
 |---|---|
 | [`formats/hm-ai-protocol/v1.schema.json`](../../formats/hm-ai-protocol/v1.schema.json) | The request body at its root. Each event's data in `$defs`: `startEvent`, `textDeltaEvent`, `summaryDeltaEvent`, `partEvent`, `finishEvent` and `errorEvent` |
 
-The schema ships with the package, as `@hussmartinez/ai-core/formats/hm-ai-protocol/v1.schema.json`. Every object in it sets `additionalProperties: false`, and both readers, the handler's and the transport's, accept exactly what it accepts: the tests check every vector against both, and check that one extra field anywhere in a valid body is refused by both.
+The schema ships with the package, as `@hussmartinez/ai-core/formats/hm-ai-protocol/v1.schema.json`. Both readers, the handler's and the transport's, accept exactly what it accepts: the tests check every vector against both, and check that one extra field anywhere in a valid request body is refused by both.
+
+**Receivers ignore fields and events they don't know, so later minor versions can add them.** A page can run the previous release's transport, from its cache, against a newly deployed handler. So the event schemas allow fields they don't list, and the transport ignores them, while it stays strict on the types and values of the fields it knows. Two things stay strict:
+
+- **the request,** which the handler refuses with `unknown-field`, because it's the security boundary;
+- **the parts inside a `part` event,** which follow the message model, because the page sends them back to the handler in the next request.
 
 ## Request
 
@@ -39,7 +44,7 @@ A `200` answer is `text/event-stream`. Each event's `event:` field is its type, 
 | `finish` | `{ "finishReason", "rawFinishReason"?, "usage" }` | Last, on success |
 | `error` | An `AiError`, as `serializeError` writes it, without `cause` or `stack` | Last, instead of `finish`, on failure |
 
-A reader ignores event types it doesn't know, so a later version can add events without a new protocol identifier. It refuses unknown fields within the events above. A stream that ends without `finish` or `error` was cut off.
+A reader ignores event types it doesn't know, and fields it doesn't know within the events above, so a later minor version can add either without a new protocol identifier. A stream that ends without `finish` or `error` was cut off.
 
 Errors before a stream are JSON bodies, `{ "error": <the same AiError> }`, with the statuses of ADR 0003.
 
@@ -77,9 +82,8 @@ The transport, reading events:
 | `PROVIDER_RESPONSE_INVALID` | `missing-start` | The first event isn't `start` |
 | `PROVIDER_RESPONSE_INVALID` | `duplicate-start` | A second `start` |
 | `PROTOCOL_MISMATCH` | `unsupported-protocol` | `start` names another protocol identifier |
-| `PROVIDER_RESPONSE_INVALID` | `unknown-field` | A field the event or its usage doesn't have |
 | `PROVIDER_RESPONSE_INVALID` | `invalid-delta` | A delta without text |
-| `PROVIDER_RESPONSE_INVALID` | `invalid-part` | A part outside the message model |
+| `PROVIDER_RESPONSE_INVALID` | `invalid-part` | A part outside the message model, including a field the model doesn't have |
 | `PROVIDER_RESPONSE_INVALID` | `invalid-finish` | An unknown `finishReason`, or a `rawFinishReason` that isn't a string |
 | `PROVIDER_RESPONSE_INVALID` | `invalid-usage` | No usage, or a count that isn't a non-negative number |
 | `PROVIDER_RESPONSE_INVALID` | `unknown-error` | An `error` event that isn't an `AiError` |
@@ -91,7 +95,7 @@ An `error` event that is an `AiError` is the handler's own failure, such as `PRO
 | File | Subject | What it checks |
 |---|---|---|
 | [`hm-ai-protocol-request.json`](../../conformance/hm-ai-protocol-request.json) | `hm-ai-protocol-request` | Request bodies as the handler reads them: every part type in its place, unicode, hostile keys in opaque data, and each rejection with its reason |
-| [`hm-ai-protocol-events.json`](../../conformance/hm-ai-protocol-events.json) | `hm-ai-protocol-events` | Event sequences as the transport reads them: what's delivered, whether it finished, and each rejection with its reason |
+| [`hm-ai-protocol-events.json`](../../conformance/hm-ai-protocol-events.json) | `hm-ai-protocol-events` | Event sequences as the transport reads them: what's delivered, whether it finished, unknown events and fields ignored, and each rejection with its reason |
 
 They're hand-written: each expected value is the format's rule, stated directly.
 

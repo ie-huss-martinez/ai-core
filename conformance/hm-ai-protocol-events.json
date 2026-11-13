@@ -439,7 +439,7 @@
       }
     },
     {
-      "name": "a start field the protocol doesn't have",
+      "name": "a start field it doesn't know is ignored",
       "input": [
         {
           "event": "start",
@@ -457,10 +457,14 @@
         }
       ],
       "expected": {
-        "error": {
-          "code": "PROVIDER_RESPONSE_INVALID",
-          "reason": "unknown-field"
-        }
+        "events": [
+          {
+            "type": "finish",
+            "finishReason": "stop",
+            "usage": {}
+          }
+        ],
+        "finished": true
       }
     },
     {
@@ -494,7 +498,7 @@
       }
     },
     {
-      "name": "a delta field the protocol doesn't have",
+      "name": "a delta field it doesn't know is ignored",
       "input": [
         {
           "event": "start",
@@ -518,10 +522,18 @@
         }
       ],
       "expected": {
-        "error": {
-          "code": "PROVIDER_RESPONSE_INVALID",
-          "reason": "unknown-field"
-        }
+        "events": [
+          {
+            "type": "summary-delta",
+            "text": "a"
+          },
+          {
+            "type": "finish",
+            "finishReason": "stop",
+            "usage": {}
+          }
+        ],
+        "finished": true
       }
     },
     {
@@ -559,7 +571,7 @@
       }
     },
     {
-      "name": "a part event field the protocol doesn't have",
+      "name": "a part event field it doesn't know is ignored",
       "input": [
         {
           "event": "start",
@@ -586,9 +598,54 @@
         }
       ],
       "expected": {
+        "events": [
+          {
+            "type": "part",
+            "part": {
+              "type": "text",
+              "text": "a"
+            }
+          },
+          {
+            "type": "finish",
+            "finishReason": "stop",
+            "usage": {}
+          }
+        ],
+        "finished": true
+      }
+    },
+    {
+      "name": "a part with a field the message model doesn't have",
+      "input": [
+        {
+          "event": "start",
+          "data": {
+            "protocol": "ai-core/1"
+          }
+        },
+        {
+          "event": "part",
+          "data": {
+            "part": {
+              "type": "text",
+              "text": "a",
+              "x": 1
+            }
+          }
+        },
+        {
+          "event": "finish",
+          "data": {
+            "finishReason": "stop",
+            "usage": {}
+          }
+        }
+      ],
+      "expected": {
         "error": {
           "code": "PROVIDER_RESPONSE_INVALID",
-          "reason": "unknown-field"
+          "reason": "invalid-part"
         }
       }
     },
@@ -691,7 +748,7 @@
       }
     },
     {
-      "name": "a usage field the protocol doesn't have",
+      "name": "finish and usage fields it doesn't know are ignored",
       "input": [
         {
           "event": "start",
@@ -703,16 +760,49 @@
           "event": "finish",
           "data": {
             "finishReason": "stop",
+            "stopSequence": "x",
             "usage": {
+              "inputTokens": 1,
               "costUsd": 1
             }
           }
         }
       ],
       "expected": {
+        "events": [
+          {
+            "type": "finish",
+            "finishReason": "stop",
+            "usage": {
+              "inputTokens": 1
+            }
+          }
+        ],
+        "finished": true
+      }
+    },
+    {
+      "name": "an error field it doesn't know is ignored, and the error rebuilt",
+      "input": [
+        {
+          "event": "start",
+          "data": {
+            "protocol": "ai-core/1"
+          }
+        },
+        {
+          "event": "error",
+          "data": {
+            "name": "AiError",
+            "code": "PROVIDER_ERROR",
+            "message": "x",
+            "hint": "y"
+          }
+        }
+      ],
+      "expected": {
         "error": {
-          "code": "PROVIDER_RESPONSE_INVALID",
-          "reason": "unknown-field"
+          "code": "PROVIDER_ERROR"
         }
       }
     },

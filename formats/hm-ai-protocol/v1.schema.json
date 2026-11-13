@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/ie-huss-martinez/ai-core/blob/main/formats/hm-ai-protocol/v1.schema.json",
   "title": "hm-ai-protocol, version 1 (the ai-core/1 wire protocol)",
-  "description": "The ai-core/1 protocol between the browser transport and the request handler (docs/formats/hm-ai-protocol.md, ADR 0003, sdk-core ADR 0045). The root is the request body. Each server-sent event's data is described under $defs, by event type: startEvent, textDeltaEvent, summaryDeltaEvent, partEvent, finishEvent and errorEvent. Beyond this schema, the handler checks the context hash against the server's settings.",
+  "description": "The ai-core/1 protocol between the browser transport and the request handler (docs/formats/hm-ai-protocol.md, ADR 0003, sdk-core ADR 0045). The root is the request body. Each server-sent event's data is described under $defs, by event type: startEvent, textDeltaEvent, summaryDeltaEvent, partEvent, finishEvent and errorEvent. Event data allows fields it doesn't list, which receivers ignore, so later minor versions can add them; the request and the parts inside a part event don't. Beyond this schema, the handler checks the context hash against the server's settings.",
   "type": "object",
   "required": ["protocol", "messages"],
   "additionalProperties": false,
@@ -244,7 +244,6 @@
       "description": "The data of the first event, start.",
       "type": "object",
       "required": ["protocol"],
-      "additionalProperties": false,
       "properties": {
         "protocol": {
           "const": "ai-core/1"
@@ -255,7 +254,6 @@
       "description": "The data of a text-delta event.",
       "type": "object",
       "required": ["text"],
-      "additionalProperties": false,
       "properties": {
         "text": {
           "type": "string"
@@ -266,7 +264,6 @@
       "description": "The data of a summary-delta event.",
       "type": "object",
       "required": ["text"],
-      "additionalProperties": false,
       "properties": {
         "text": {
           "type": "string"
@@ -277,7 +274,6 @@
       "description": "The data of a part event. The first is the handler's context part.",
       "type": "object",
       "required": ["part"],
-      "additionalProperties": false,
       "properties": {
         "part": {
           "$ref": "#/$defs/part"
@@ -288,7 +284,6 @@
       "description": "The data of the last event of a successful stream, finish.",
       "type": "object",
       "required": ["finishReason", "usage"],
-      "additionalProperties": false,
       "properties": {
         "finishReason": {
           "enum": ["stop", "length", "tool-calls", "refusal", "other"]
@@ -299,7 +294,6 @@
         "usage": {
           "type": "object",
           "required": [],
-          "additionalProperties": false,
           "properties": {
             "inputTokens": {
               "type": "number",
@@ -329,7 +323,6 @@
       "description": "The data of an error event, which replaces finish, and the error body before a stream: an AiError as serializeError writes it, without its cause or stack.",
       "type": "object",
       "required": ["name", "code", "message"],
-      "additionalProperties": false,
       "properties": {
         "name": {
           "const": "AiError"
