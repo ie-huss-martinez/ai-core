@@ -48,6 +48,16 @@ A reader ignores event types it doesn't know, and fields it doesn't know within 
 
 Errors before a stream are JSON bodies, `{ "error": <the same AiError> }`, with the statuses of ADR 0003.
 
+## Framing
+
+The event stream follows the WHATWG HTML standard's rules for [interpreting an event stream](https://html.spec.whatwg.org/multipage/server-sent-events.html). The same reader serves the transport and every adapter, so these rules hold for providers' streams too:
+
+- the body is UTF-8, decoded strictly, across chunk boundaries. Invalid bytes are refused with `PROVIDER_RESPONSE_INVALID` and `details.reason` `"invalid-utf8"`, and a body that ends inside a character with `"truncated-utf8"`;
+- a leading byte order mark is ignored;
+- lines end in CRLF, LF or CR. A CR at the end of a chunk can be half of a CRLF, so it waits for the next chunk, and a CR at the very end of the body still ends its line;
+- `data:` lines are joined with LF; `event:` sets the type, which is `message` without it; `id:` sets the last event ID, unless it contains NULL; comments, `retry:` and other fields are ignored;
+- a blank line dispatches the event, unless it has no data, and an unfinished event at the end of the body is discarded.
+
 ## Rejections
 
 Every refusal carries a stable `details.reason`, which vectors and ports compare, never the message.
@@ -96,8 +106,9 @@ An `error` event that is an `AiError` is the handler's own failure, such as `PRO
 |---|---|---|
 | [`hm-ai-protocol-request.json`](../../conformance/hm-ai-protocol-request.json) | `hm-ai-protocol-request` | Request bodies as the handler reads them: every part type in its place, unicode, hostile keys in opaque data, and each rejection with its reason |
 | [`hm-ai-protocol-events.json`](../../conformance/hm-ai-protocol-events.json) | `hm-ai-protocol-events` | Event sequences as the transport reads them: what's delivered, whether it finished, unknown events and fields ignored, and each rejection with its reason |
+| [`hm-ai-sse-framing.json`](../../conformance/hm-ai-sse-framing.json) | `hm-ai-sse-framing` | Bytes to events: every line ending, CRs at chunk ends, characters split between chunks, byte order marks, IDs, comments, unfinished events, and invalid or cut-off UTF-8. Chunks are base64, so any split can be expressed |
 
-They're hand-written: each expected value is the format's rule, stated directly.
+They're hand-written: each expected value is the format's rule, stated directly. [`scripts/generate-sse-vectors.py`](../../scripts/generate-sse-vectors.py) writes the framing file, splitting each hand-written case's bytes in the ways that matter. It uses Python's standard library only, and is run by hand, never in CI.
 
 ## Not covered here
 

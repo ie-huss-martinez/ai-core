@@ -3,9 +3,13 @@ import { describeConformance, readConformance } from "@hussmartinez/sdk-config/t
 import { Ajv2020 } from "ajv/dist/2020.js";
 import { describe, expect, it } from "vitest";
 import { WireStream } from "../../src/adapters/http/stream.js";
+import { responseLimits } from "../../src/core/limits/ai-limits.js";
 import type { AiMessage } from "../../src/core/model/message.js";
 import type { AiTool } from "../../src/core/model/provider.js";
 import { decodeRequestBody, encodePart } from "../../src/core/protocol/wire.js";
+import type { SseEvent } from "../../src/core/sse/sse-parser.js";
+import { CallGuard } from "../../src/core/stream/call-guard.js";
+import { readSseEvents } from "../../src/core/stream/read-sse-events.js";
 import { canonicalJson, contextCanonicalJson, contextHash } from "../../src/server/context-hash.js";
 
 const isObject = (value: unknown): value is Record<string, unknown> =>
@@ -184,3 +188,33 @@ describe("the hm-ai-protocol schema and the readers accept the same", () => {
     });
   }
 });
+
+// --- Server-sent events framing (docs/formats/hm-ai-protocol.md) --------
+
+/**
+ * The bytes go through the same reader every adapter and the transport use,
+ * with its default limits, so the vectors check the real path.
+ */
+describeConformance<{ readonly chunks: readonly string[] }>(
+  new URL("../../conformance/hm-ai-sse-framing.json", import.meta.url),
+  async (input) => {
+    const body = new ReadableStream<Uint8Array>({
+      start(controller) {
+        for (const chunk of input.chunks) {
+          controller.enqueue(new Uint8Array(Buffer.from(chunk, "base64")));
+        }
+        controller.close();
+      },
+    });
+    const guard = new CallGuard({ policy: responseLimits.resolve() });
+    const events: SseEvent[] = [];
+    try {
+      for await (const event of readSseEvents(body, guard)) {
+        events.push(event);
+      }
+    } finally {
+      guard.dispose();
+    }
+    return { events };
+  },
+);
