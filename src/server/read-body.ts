@@ -3,7 +3,9 @@ import type { RequestPolicy } from "../core/limits/ai-limits.js";
 import type { AiLimitWarning } from "../core/stream/call-guard.js";
 
 function unreadable(message: string): AiError {
-  return new AiError("INVALID_REQUEST", message, { details: { retryable: false } });
+  return new AiError("INVALID_REQUEST", message, {
+    details: { reason: "malformed-body", retryable: false },
+  });
 }
 
 /**

@@ -49,10 +49,12 @@
       "types": "./dist/testing.d.ts",
       "default": "./dist/testing.js"
     },
+    "./formats/*": "./formats/*",
     "./package.json": "./package.json"
   },
   "files": [
-    "dist"
+    "dist",
+    "formats"
   ],
   "packageManager": "pnpm@12.18.0",
   "engines": {

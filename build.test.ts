@@ -28,7 +28,7 @@ describe("the built package", () => {
     expect(found?.type).toBe("chunk");
   });
 
-  it("exports exactly the built entries, types first (ADR 0004)", async () => {
+  it("exports exactly the built entries and the format schemas, types first (ADR 0004)", async () => {
     const manifest = JSON.parse(await readFile("package.json", "utf8")) as {
       exports: Record<string, string | { types: string; default: string }>;
     };
@@ -39,7 +39,12 @@ describe("the built package", () => {
         { types: `./dist/${name}.d.ts`, default: `./dist/${name}.js` },
       ]),
     );
-    expect(manifest.exports).toEqual({ ...expected, "./package.json": "./package.json" });
+    expect(manifest.exports).toEqual({
+      ...expected,
+      // The JSON Schemas of ai-core's formats ship as they are (sdk-core ADR 0045).
+      "./formats/*": "./formats/*",
+      "./package.json": "./package.json",
+    });
     for (const target of Object.values(manifest.exports)) {
       if (typeof target === "object") {
         expect(Object.keys(target)[0]).toBe("types");
