@@ -41,8 +41,41 @@ const NAMEABLE = /^[A-Za-z][A-Za-z0-9_]{0,63}$/;
 const isObject = (value: unknown): value is Json =>
   typeof value === "object" && value !== null && !Array.isArray(value);
 
-function invalid(message: string, path: string): AiError {
-  return new AiError("INVALID_REQUEST", message, { details: { path, retryable: false } });
+/**
+ * Why a body, a message or a part was refused: a stable token in
+ * `details.reason`, which conformance vectors and ports compare, never the
+ * message (sdk-core ADR 0045). `docs/formats/hm-ai-protocol.md` lists them.
+ *
+ * @internal
+ */
+export type WireReason =
+  | "malformed-body"
+  | "missing-protocol"
+  | "unsupported-protocol"
+  | "unknown-field"
+  | "missing-field"
+  | "not-an-object"
+  | "not-an-array"
+  | "not-a-string"
+  | "empty-string"
+  | "not-a-boolean"
+  | "no-messages"
+  | "invalid-role"
+  | "unknown-part-type"
+  | "unsupported-media-type"
+  | "invalid-base64"
+  | "misplaced-tool-call"
+  | "misplaced-tool-result"
+  | "invalid-context-hash"
+  | "context-changed";
+
+/**
+ * An `INVALID_REQUEST` with its path and reason, for the handler's own checks.
+ *
+ * @internal
+ */
+export function invalid(message: string, path: string, reason: WireReason): AiError {
+  return new AiError("INVALID_REQUEST", message, { details: { path, reason, retryable: false } });
 }
 
 /**
@@ -58,6 +91,7 @@ export function onlyFields(value: Json, allowed: readonly string[], path: string
       throw invalid(
         `${path || "The body"} has ${field}, which isn't allowed here.`,
         NAMEABLE.test(key) ? `${path ? `${path}.` : ""}${key}` : path,
+        "unknown-field",
       );
     }
   }
@@ -65,21 +99,28 @@ export function onlyFields(value: Json, allowed: readonly string[], path: string
 
 function object(value: unknown, path: string): Json {
   if (!isObject(value)) {
-    throw invalid(`${path} must be an object.`, path);
+    throw invalid(`${path} must be an object.`, path, "not-an-object");
   }
   return value;
 }
 
 function string(value: unknown, path: string, { empty = true } = {}): string {
-  if (typeof value !== "string" || (!empty && value === "")) {
-    throw invalid(`${path} must be a ${empty ? "" : "non-empty "}string.`, path);
+  if (typeof value !== "string") {
+    throw invalid(
+      `${path} must be a string.`,
+      path,
+      value === undefined ? "missing-field" : "not-a-string",
+    );
+  }
+  if (!empty && value === "") {
+    throw invalid(`${path} must not be empty.`, path, "empty-string");
   }
   return value;
 }
 
 function json(value: Json, key: string, path: string): AiJsonValue {
   if (!(key in value)) {
-    throw invalid(`${path}.${key} is missing.`, `${path}.${key}`);
+    throw invalid(`${path}.${key} is missing.`, `${path}.${key}`, "missing-field");
   }
   // Parsed JSON is always a JSON value.
   return value[key] as AiJsonValue;
@@ -98,11 +139,19 @@ function image(value: Json, path: string): AiImagePart {
   onlyFields(value, ["type", "mediaType", "data"], path);
   const mediaType = string(value["mediaType"], `${path}.mediaType`);
   if (!MEDIA_TYPES.has(mediaType)) {
-    throw invalid(`${path}.mediaType isn't a supported image type.`, `${path}.mediaType`);
+    throw invalid(
+      `${path}.mediaType isn't a supported image type.`,
+      `${path}.mediaType`,
+      "unsupported-media-type",
+    );
   }
   const data = fromBase64(string(value["data"], `${path}.data`));
   if (data === undefined) {
-    throw invalid(`${path}.data must be padded, standard base64.`, `${path}.data`);
+    throw invalid(
+      `${path}.data must be padded, standard base64.`,
+      `${path}.data`,
+      "invalid-base64",
+    );
   }
   return { type: "image", mediaType: mediaType as AiImageMediaType, data };
 }
@@ -147,7 +196,7 @@ export function decodePart(value: unknown, path: string): AiPart {
       const content = raw["content"];
       const isError = raw["isError"];
       if (isError !== undefined && typeof isError !== "boolean") {
-        throw invalid(`${path}.isError must be a boolean.`, `${path}.isError`);
+        throw invalid(`${path}.isError must be a boolean.`, `${path}.isError`, "not-a-boolean");
       }
       return {
         type: "tool-result",
@@ -164,7 +213,11 @@ export function decodePart(value: unknown, path: string): AiPart {
                 if (entry["type"] === "image") {
                   return image(entry, itemPath);
                 }
-                throw invalid(`${itemPath} must be a text or image part.`, `${itemPath}.type`);
+                throw invalid(
+                  `${itemPath} must be a text or image part.`,
+                  `${itemPath}.type`,
+                  "unknown-part-type",
+                );
               }),
         ...(isError === undefined ? {} : { isError }),
       };
@@ -180,13 +233,17 @@ export function decodePart(value: unknown, path: string): AiPart {
       };
     }
     default:
-      throw invalid(`${path}.type isn't a known part type.`, `${path}.type`);
+      throw invalid(`${path}.type isn't a known part type.`, `${path}.type`, "unknown-part-type");
   }
 }
 
 function list(value: unknown, path: string): readonly unknown[] {
   if (!Array.isArray(value)) {
-    throw invalid(`${path} must be an array.`, path);
+    throw invalid(
+      `${path} must be an array.`,
+      path,
+      value === undefined ? "missing-field" : "not-an-array",
+    );
   }
   return value;
 }
@@ -206,7 +263,11 @@ export function decodeMessages(value: unknown, path = "messages"): AiMessage[] {
     onlyFields(message, ["role", "parts"], messagePath);
     const role = message["role"];
     if (role !== "user" && role !== "assistant") {
-      throw invalid(`${messagePath}.role must be "user" or "assistant".`, `${messagePath}.role`);
+      throw invalid(
+        `${messagePath}.role must be "user" or "assistant".`,
+        `${messagePath}.role`,
+        "invalid-role",
+      );
     }
     const parts = list(message["parts"], `${messagePath}.parts`).map((item, partIndex) =>
       decodePart(item, `${messagePath}.parts[${partIndex}]`),
@@ -216,21 +277,77 @@ export function decodeMessages(value: unknown, path = "messages"): AiMessage[] {
         throw invalid(
           "Tool calls belong in assistant messages.",
           `${messagePath}.parts[${partIndex}]`,
+          "misplaced-tool-call",
         );
       }
       if (item.type === "tool-result" && role !== "user") {
         throw invalid(
           "Tool results belong in user messages.",
           `${messagePath}.parts[${partIndex}]`,
+          "misplaced-tool-result",
         );
       }
     }
     return { role, parts };
   });
   if (messages.length === 0) {
-    throw invalid("A request needs at least one message.", path);
+    throw invalid("A request needs at least one message.", path, "no-messages");
   }
   return messages;
+}
+
+/**
+ * The error for another version of the protocol, the same on both sides of
+ * the wire (ADR 0003), with the versions this side speaks.
+ *
+ * @internal
+ */
+export function protocolMismatch(): AiError {
+  return new AiError(
+    "PROTOCOL_MISMATCH",
+    "The other side speaks another version of the ai-core protocol.",
+    {
+      details: { supported: [AI_CORE_PROTOCOL], reason: "unsupported-protocol", retryable: false },
+    },
+  );
+}
+
+/**
+ * Checks a request body, parsed from JSON, as the handler receives it
+ * (ADR 0003): `{ protocol: "ai-core/1", messages }`, and nothing else.
+ *
+ * @throws An `AiError`: `PROTOCOL_MISMATCH` for another protocol version,
+ *   and `INVALID_REQUEST` for anything else, with `details.reason`.
+ * @internal
+ */
+export function decodeRequestBody(value: unknown): {
+  readonly protocol: typeof AI_CORE_PROTOCOL;
+  readonly messages: AiMessage[];
+} {
+  if (!isObject(value)) {
+    throw invalid("The body must be a JSON object.", "", "malformed-body");
+  }
+  const protocol = value["protocol"];
+  if (protocol === undefined) {
+    throw invalid("The body has no protocol.", "protocol", "missing-protocol");
+  }
+  if (typeof protocol !== "string") {
+    throw invalid("The body's protocol must be a string.", "protocol", "not-a-string");
+  }
+  if (protocol !== AI_CORE_PROTOCOL) {
+    throw protocolMismatch();
+  }
+  for (const key of Object.keys(value)) {
+    if (key !== "protocol" && key !== "messages") {
+      const named = NAMEABLE.test(key);
+      throw invalid(
+        `The body has ${named ? `"${key}"` : "a field"} besides protocol and messages. The server sets everything else, in prepare.`,
+        named ? key : "",
+        "unknown-field",
+      );
+    }
+  }
+  return { protocol: AI_CORE_PROTOCOL, messages: decodeMessages(value["messages"]) };
 }
 
 /**

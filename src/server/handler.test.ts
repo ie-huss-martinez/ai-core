@@ -241,11 +241,11 @@ describe("createAiHandler: what it accepts", () => {
 
   describe("the body", () => {
     it.each([
-      ["invalid JSON", "{"],
-      ["an array", "[]"],
-      ["no protocol", { messages: [hello] }],
-      ["invalid UTF-8", new Uint8Array([0x7b, 0xff, 0x7d])],
-    ])("answers 400 INVALID_REQUEST to %s", async (_, body) => {
+      ["invalid JSON", "{", "malformed-body"],
+      ["an array", "[]", "malformed-body"],
+      ["no protocol", { messages: [hello] }, "missing-protocol"],
+      ["invalid UTF-8", new Uint8Array([0x7b, 0xff, 0x7d]), "malformed-body"],
+    ])("answers 400 INVALID_REQUEST to %s", async (_, body, reason) => {
       const { handler, prepare } = setup();
       const response = await handler(
         new Request(URL_, {
@@ -256,7 +256,9 @@ describe("createAiHandler: what it accepts", () => {
         }),
       );
       expect(response.status).toBe(400);
-      expect((await errorOf(response)).code).toBe("INVALID_REQUEST");
+      const error = await errorOf(response);
+      expect(error.code).toBe("INVALID_REQUEST");
+      expect(error.details).toMatchObject({ reason });
       expect(prepare).not.toHaveBeenCalled();
     });
 
@@ -585,7 +587,7 @@ describe("createAiHandler: a stable system prompt and tools (ADR 0003)", () => {
       expect(response.status).toBe(409);
       const error = await errorOf(response);
       expect(error.code).toBe("CONTEXT_CHANGED");
-      expect(error.details).toMatchObject({ messageIndex: 1 });
+      expect(error.details).toMatchObject({ messageIndex: 1, reason: "context-changed" });
       expect(provider.requests).toHaveLength(0);
     },
   );
@@ -600,7 +602,9 @@ describe("createAiHandler: a stable system prompt and tools (ADR 0003)", () => {
       ]),
     );
     expect(response.status).toBe(400);
-    expect((await errorOf(response)).code).toBe("INVALID_REQUEST");
+    const error = await errorOf(response);
+    expect(error.code).toBe("INVALID_REQUEST");
+    expect(error.details).toMatchObject({ reason: "invalid-context-hash" });
   });
 
   it("drops a message that held only ai-core state", async () => {

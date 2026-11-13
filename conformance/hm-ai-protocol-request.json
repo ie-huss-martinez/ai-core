@@ -1,0 +1,1187 @@
+{
+  "format": "hm-conformance",
+  "version": 1,
+  "subject": "hm-ai-protocol-request",
+  "description": "Request bodies of the ai-core/1 protocol, as the handler reads them (docs/formats/hm-ai-protocol.md). input is the parsed body; expected is the body as read, with images still base64, or the rejection's code and reason. Hand-written.",
+  "cases": [
+    {
+      "name": "one user message",
+      "input": {
+        "protocol": "ai-core/1",
+        "messages": [
+          {
+            "role": "user",
+            "parts": [
+              {
+                "type": "text",
+                "text": "Hi"
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "protocol": "ai-core/1",
+        "messages": [
+          {
+            "role": "user",
+            "parts": [
+              {
+                "type": "text",
+                "text": "Hi"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "every part type, where each belongs",
+      "input": {
+        "protocol": "ai-core/1",
+        "messages": [
+          {
+            "role": "user",
+            "parts": [
+              {
+                "type": "text",
+                "text": "Look"
+              },
+              {
+                "type": "image",
+                "mediaType": "image/png",
+                "data": "iVBORw0KGgo="
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "parts": [
+              {
+                "type": "provider-state",
+                "provider": "ai-core",
+                "data": {
+                  "context": "71c702edfb2d7645f1054f9f536a7399d30d4a29aeb9610e6ed5916729c7b1f7"
+                }
+              },
+              {
+                "type": "provider-state",
+                "provider": "anthropic",
+                "data": {
+                  "type": "thinking",
+                  "thinking": "Hmm.",
+                  "signature": "sig"
+                },
+                "summary": "Hmm."
+              },
+              {
+                "type": "text",
+                "text": "Calling.",
+                "providerState": {
+                  "provider": "gemini",
+                  "data": "sig=="
+                }
+              },
+              {
+                "type": "tool-call",
+                "id": "call_1",
+                "name": "look_up",
+                "input": {
+                  "query": "weather",
+                  "units": ["c", null, 1.5, true]
+                }
+              }
+            ]
+          },
+          {
+            "role": "user",
+            "parts": [
+              {
+                "type": "tool-result",
+                "callId": "call_1",
+                "content": "Sunny",
+                "isError": false
+              },
+              {
+                "type": "tool-result",
+                "callId": "call_1",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Rain"
+                  },
+                  {
+                    "type": "image",
+                    "mediaType": "image/png",
+                    "data": "iVBORw0KGgo="
+                  }
+                ],
+                "isError": true
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "protocol": "ai-core/1",
+        "messages": [
+          {
+            "role": "user",
+            "parts": [
+              {
+                "type": "text",
+                "text": "Look"
+              },
+              {
+                "type": "image",
+                "mediaType": "image/png",
+                "data": "iVBORw0KGgo="
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "parts": [
+              {
+                "type": "provider-state",
+                "provider": "ai-core",
+                "data": {
+                  "context": "71c702edfb2d7645f1054f9f536a7399d30d4a29aeb9610e6ed5916729c7b1f7"
+                }
+              },
+              {
+                "type": "provider-state",
+                "provider": "anthropic",
+                "data": {
+                  "type": "thinking",
+                  "thinking": "Hmm.",
+                  "signature": "sig"
+                },
+                "summary": "Hmm."
+              },
+              {
+                "type": "text",
+                "text": "Calling.",
+                "providerState": {
+                  "provider": "gemini",
+                  "data": "sig=="
+                }
+              },
+              {
+                "type": "tool-call",
+                "id": "call_1",
+                "name": "look_up",
+                "input": {
+                  "query": "weather",
+                  "units": ["c", null, 1.5, true]
+                }
+              }
+            ]
+          },
+          {
+            "role": "user",
+            "parts": [
+              {
+                "type": "tool-result",
+                "callId": "call_1",
+                "content": "Sunny",
+                "isError": false
+              },
+              {
+                "type": "tool-result",
+                "callId": "call_1",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Rain"
+                  },
+                  {
+                    "type": "image",
+                    "mediaType": "image/png",
+                    "data": "iVBORw0KGgo="
+                  }
+                ],
+                "isError": true
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "unicode, escapes and an empty text",
+      "input": {
+        "protocol": "ai-core/1",
+        "messages": [
+          {
+            "role": "user",
+            "parts": [
+              {
+                "type": "text",
+                "text": "caf\u00e9 \u65e5\u672c \ud83d\ude00 \"q\" \\ \n\u2028"
+              },
+              {
+                "type": "text",
+                "text": ""
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "protocol": "ai-core/1",
+        "messages": [
+          {
+            "role": "user",
+            "parts": [
+              {
+                "type": "text",
+                "text": "caf\u00e9 \u65e5\u672c \ud83d\ude00 \"q\" \\ \n\u2028"
+              },
+              {
+                "type": "text",
+                "text": ""
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "a message with no parts",
+      "input": {
+        "protocol": "ai-core/1",
+        "messages": [
+          {
+            "role": "user",
+            "parts": []
+          },
+          {
+            "role": "user",
+            "parts": [
+              {
+                "type": "text",
+                "text": "Hi"
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "protocol": "ai-core/1",
+        "messages": [
+          {
+            "role": "user",
+            "parts": []
+          },
+          {
+            "role": "user",
+            "parts": [
+              {
+                "type": "text",
+                "text": "Hi"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "hostile keys inside opaque data are ordinary keys",
+      "input": {
+        "protocol": "ai-core/1",
+        "messages": [
+          {
+            "role": "assistant",
+            "parts": [
+              {
+                "type": "provider-state",
+                "provider": "x",
+                "data": {
+                  "__proto__": 1,
+                  "constructor": 2,
+                  "toString": 3
+                }
+              }
+            ]
+          },
+          {
+            "role": "user",
+            "parts": [
+              {
+                "type": "text",
+                "text": "Hi"
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "protocol": "ai-core/1",
+        "messages": [
+          {
+            "role": "assistant",
+            "parts": [
+              {
+                "type": "provider-state",
+                "provider": "x",
+                "data": {
+                  "__proto__": 1,
+                  "constructor": 2,
+                  "toString": 3
+                }
+              }
+            ]
+          },
+          {
+            "role": "user",
+            "parts": [
+              {
+                "type": "text",
+                "text": "Hi"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "not an object",
+      "input": ["ai-core/1"],
+      "expected": {
+        "error": {
+          "code": "INVALID_REQUEST",
+          "reason": "malformed-body"
+        }
+      }
+    },
+    {
+      "name": "no protocol",
+      "input": {
+        "messages": [
+          {
+            "role": "user",
+            "parts": [
+              {
+                "type": "text",
+                "text": "Hi"
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "error": {
+          "code": "INVALID_REQUEST",
+          "reason": "missing-protocol"
+        }
+      }
+    },
+    {
+      "name": "a protocol that isn't a string",
+      "input": {
+        "protocol": 1,
+        "messages": [
+          {
+            "role": "user",
+            "parts": [
+              {
+                "type": "text",
+                "text": "Hi"
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "error": {
+          "code": "INVALID_REQUEST",
+          "reason": "not-a-string"
+        }
+      }
+    },
+    {
+      "name": "another protocol version",
+      "input": {
+        "protocol": "ai-core/2",
+        "messages": [
+          {
+            "role": "user",
+            "parts": [
+              {
+                "type": "text",
+                "text": "Hi"
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "error": {
+          "code": "PROTOCOL_MISMATCH",
+          "reason": "unsupported-protocol"
+        }
+      }
+    },
+    {
+      "name": "a body field the browser can't set: model",
+      "input": {
+        "protocol": "ai-core/1",
+        "messages": [
+          {
+            "role": "user",
+            "parts": [
+              {
+                "type": "text",
+                "text": "Hi"
+              }
+            ]
+          }
+        ],
+        "model": "x"
+      },
+      "expected": {
+        "error": {
+          "code": "INVALID_REQUEST",
+          "reason": "unknown-field"
+        }
+      }
+    },
+    {
+      "name": "a body field the browser can't set: system",
+      "input": {
+        "protocol": "ai-core/1",
+        "messages": [
+          {
+            "role": "user",
+            "parts": [
+              {
+                "type": "text",
+                "text": "Hi"
+              }
+            ]
+          }
+        ],
+        "system": "x"
+      },
+      "expected": {
+        "error": {
+          "code": "INVALID_REQUEST",
+          "reason": "unknown-field"
+        }
+      }
+    },
+    {
+      "name": "a body field the browser can't set: tools",
+      "input": {
+        "protocol": "ai-core/1",
+        "messages": [
+          {
+            "role": "user",
+            "parts": [
+              {
+                "type": "text",
+                "text": "Hi"
+              }
+            ]
+          }
+        ],
+        "tools": "x"
+      },
+      "expected": {
+        "error": {
+          "code": "INVALID_REQUEST",
+          "reason": "unknown-field"
+        }
+      }
+    },
+    {
+      "name": "a body field the browser can't set: toolChoice",
+      "input": {
+        "protocol": "ai-core/1",
+        "messages": [
+          {
+            "role": "user",
+            "parts": [
+              {
+                "type": "text",
+                "text": "Hi"
+              }
+            ]
+          }
+        ],
+        "toolChoice": "x"
+      },
+      "expected": {
+        "error": {
+          "code": "INVALID_REQUEST",
+          "reason": "unknown-field"
+        }
+      }
+    },
+    {
+      "name": "a body field the browser can't set: maxOutputTokens",
+      "input": {
+        "protocol": "ai-core/1",
+        "messages": [
+          {
+            "role": "user",
+            "parts": [
+              {
+                "type": "text",
+                "text": "Hi"
+              }
+            ]
+          }
+        ],
+        "maxOutputTokens": "x"
+      },
+      "expected": {
+        "error": {
+          "code": "INVALID_REQUEST",
+          "reason": "unknown-field"
+        }
+      }
+    },
+    {
+      "name": "a body field the browser can't set: providerOptions",
+      "input": {
+        "protocol": "ai-core/1",
+        "messages": [
+          {
+            "role": "user",
+            "parts": [
+              {
+                "type": "text",
+                "text": "Hi"
+              }
+            ]
+          }
+        ],
+        "providerOptions": "x"
+      },
+      "expected": {
+        "error": {
+          "code": "INVALID_REQUEST",
+          "reason": "unknown-field"
+        }
+      }
+    },
+    {
+      "name": "a body field the browser can't set: __proto__",
+      "input": {
+        "protocol": "ai-core/1",
+        "messages": [
+          {
+            "role": "user",
+            "parts": [
+              {
+                "type": "text",
+                "text": "Hi"
+              }
+            ]
+          }
+        ],
+        "__proto__": "x"
+      },
+      "expected": {
+        "error": {
+          "code": "INVALID_REQUEST",
+          "reason": "unknown-field"
+        }
+      }
+    },
+    {
+      "name": "a body field the browser can't set: constructor",
+      "input": {
+        "protocol": "ai-core/1",
+        "messages": [
+          {
+            "role": "user",
+            "parts": [
+              {
+                "type": "text",
+                "text": "Hi"
+              }
+            ]
+          }
+        ],
+        "constructor": "x"
+      },
+      "expected": {
+        "error": {
+          "code": "INVALID_REQUEST",
+          "reason": "unknown-field"
+        }
+      }
+    },
+    {
+      "name": "no messages field",
+      "input": {
+        "protocol": "ai-core/1"
+      },
+      "expected": {
+        "error": {
+          "code": "INVALID_REQUEST",
+          "reason": "missing-field"
+        }
+      }
+    },
+    {
+      "name": "messages that aren't a list",
+      "input": {
+        "protocol": "ai-core/1",
+        "messages": {}
+      },
+      "expected": {
+        "error": {
+          "code": "INVALID_REQUEST",
+          "reason": "not-an-array"
+        }
+      }
+    },
+    {
+      "name": "no messages",
+      "input": {
+        "protocol": "ai-core/1",
+        "messages": []
+      },
+      "expected": {
+        "error": {
+          "code": "INVALID_REQUEST",
+          "reason": "no-messages"
+        }
+      }
+    },
+    {
+      "name": "a message that isn't an object",
+      "input": {
+        "protocol": "ai-core/1",
+        "messages": ["Hi"]
+      },
+      "expected": {
+        "error": {
+          "code": "INVALID_REQUEST",
+          "reason": "not-an-object"
+        }
+      }
+    },
+    {
+      "name": "the system role, which is a setting, not a message",
+      "input": {
+        "protocol": "ai-core/1",
+        "messages": [
+          {
+            "role": "system",
+            "parts": []
+          }
+        ]
+      },
+      "expected": {
+        "error": {
+          "code": "INVALID_REQUEST",
+          "reason": "invalid-role"
+        }
+      }
+    },
+    {
+      "name": "a message field the model doesn't have",
+      "input": {
+        "protocol": "ai-core/1",
+        "messages": [
+          {
+            "role": "user",
+            "parts": [
+              {
+                "type": "text",
+                "text": "Hi"
+              }
+            ],
+            "name": "x"
+          }
+        ]
+      },
+      "expected": {
+        "error": {
+          "code": "INVALID_REQUEST",
+          "reason": "unknown-field"
+        }
+      }
+    },
+    {
+      "name": "parts that aren't a list",
+      "input": {
+        "protocol": "ai-core/1",
+        "messages": [
+          {
+            "role": "user",
+            "parts": "Hi"
+          }
+        ]
+      },
+      "expected": {
+        "error": {
+          "code": "INVALID_REQUEST",
+          "reason": "not-an-array"
+        }
+      }
+    },
+    {
+      "name": "an unknown part type",
+      "input": {
+        "protocol": "ai-core/1",
+        "messages": [
+          {
+            "role": "user",
+            "parts": [
+              {
+                "type": "video"
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "error": {
+          "code": "INVALID_REQUEST",
+          "reason": "unknown-part-type"
+        }
+      }
+    },
+    {
+      "name": "a part field the model doesn't have",
+      "input": {
+        "protocol": "ai-core/1",
+        "messages": [
+          {
+            "role": "user",
+            "parts": [
+              {
+                "type": "text",
+                "text": "Hi",
+                "cache": true
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "error": {
+          "code": "INVALID_REQUEST",
+          "reason": "unknown-field"
+        }
+      }
+    },
+    {
+      "name": "text that isn't a string",
+      "input": {
+        "protocol": "ai-core/1",
+        "messages": [
+          {
+            "role": "user",
+            "parts": [
+              {
+                "type": "text",
+                "text": 1
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "error": {
+          "code": "INVALID_REQUEST",
+          "reason": "not-a-string"
+        }
+      }
+    },
+    {
+      "name": "text with no text",
+      "input": {
+        "protocol": "ai-core/1",
+        "messages": [
+          {
+            "role": "user",
+            "parts": [
+              {
+                "type": "text"
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "error": {
+          "code": "INVALID_REQUEST",
+          "reason": "missing-field"
+        }
+      }
+    },
+    {
+      "name": "an unsupported image type",
+      "input": {
+        "protocol": "ai-core/1",
+        "messages": [
+          {
+            "role": "user",
+            "parts": [
+              {
+                "type": "image",
+                "mediaType": "image/svg+xml",
+                "data": "iVBORw0KGgo="
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "error": {
+          "code": "INVALID_REQUEST",
+          "reason": "unsupported-media-type"
+        }
+      }
+    },
+    {
+      "name": "an image URL instead of bytes",
+      "input": {
+        "protocol": "ai-core/1",
+        "messages": [
+          {
+            "role": "user",
+            "parts": [
+              {
+                "type": "image",
+                "mediaType": "image/png",
+                "data": "https://example.com/a.png"
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "error": {
+          "code": "INVALID_REQUEST",
+          "reason": "invalid-base64"
+        }
+      }
+    },
+    {
+      "name": "base64 without padding",
+      "input": {
+        "protocol": "ai-core/1",
+        "messages": [
+          {
+            "role": "user",
+            "parts": [
+              {
+                "type": "image",
+                "mediaType": "image/png",
+                "data": "iVBORw0KGgo"
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "error": {
+          "code": "INVALID_REQUEST",
+          "reason": "invalid-base64"
+        }
+      }
+    },
+    {
+      "name": "URL-safe base64",
+      "input": {
+        "protocol": "ai-core/1",
+        "messages": [
+          {
+            "role": "user",
+            "parts": [
+              {
+                "type": "image",
+                "mediaType": "image/png",
+                "data": "-_8="
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "error": {
+          "code": "INVALID_REQUEST",
+          "reason": "invalid-base64"
+        }
+      }
+    },
+    {
+      "name": "a tool call in a user message",
+      "input": {
+        "protocol": "ai-core/1",
+        "messages": [
+          {
+            "role": "user",
+            "parts": [
+              {
+                "type": "tool-call",
+                "id": "call_1",
+                "name": "look_up",
+                "input": {
+                  "query": "weather",
+                  "units": ["c", null, 1.5, true]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "error": {
+          "code": "INVALID_REQUEST",
+          "reason": "misplaced-tool-call"
+        }
+      }
+    },
+    {
+      "name": "a tool result in an assistant message",
+      "input": {
+        "protocol": "ai-core/1",
+        "messages": [
+          {
+            "role": "assistant",
+            "parts": [
+              {
+                "type": "tool-result",
+                "callId": "call_1",
+                "content": "Sunny",
+                "isError": false
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "error": {
+          "code": "INVALID_REQUEST",
+          "reason": "misplaced-tool-result"
+        }
+      }
+    },
+    {
+      "name": "a tool call with an empty id",
+      "input": {
+        "protocol": "ai-core/1",
+        "messages": [
+          {
+            "role": "assistant",
+            "parts": [
+              {
+                "type": "tool-call",
+                "id": "",
+                "name": "look_up",
+                "input": {
+                  "query": "weather",
+                  "units": ["c", null, 1.5, true]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "error": {
+          "code": "INVALID_REQUEST",
+          "reason": "empty-string"
+        }
+      }
+    },
+    {
+      "name": "a tool call without input",
+      "input": {
+        "protocol": "ai-core/1",
+        "messages": [
+          {
+            "role": "assistant",
+            "parts": [
+              {
+                "type": "tool-call",
+                "id": "call_1",
+                "name": "look_up"
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "error": {
+          "code": "INVALID_REQUEST",
+          "reason": "missing-field"
+        }
+      }
+    },
+    {
+      "name": "a tool result with isError that isn't a boolean",
+      "input": {
+        "protocol": "ai-core/1",
+        "messages": [
+          {
+            "role": "user",
+            "parts": [
+              {
+                "type": "tool-result",
+                "callId": "call_1",
+                "content": "Sunny",
+                "isError": "yes"
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "error": {
+          "code": "INVALID_REQUEST",
+          "reason": "not-a-boolean"
+        }
+      }
+    },
+    {
+      "name": "a tool call inside a tool result",
+      "input": {
+        "protocol": "ai-core/1",
+        "messages": [
+          {
+            "role": "user",
+            "parts": [
+              {
+                "type": "tool-result",
+                "callId": "call_1",
+                "content": [
+                  {
+                    "type": "tool-call",
+                    "id": "call_1",
+                    "name": "look_up",
+                    "input": {
+                      "query": "weather",
+                      "units": ["c", null, 1.5, true]
+                    }
+                  }
+                ],
+                "isError": false
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "error": {
+          "code": "INVALID_REQUEST",
+          "reason": "unknown-part-type"
+        }
+      }
+    },
+    {
+      "name": "provider state with an empty provider",
+      "input": {
+        "protocol": "ai-core/1",
+        "messages": [
+          {
+            "role": "assistant",
+            "parts": [
+              {
+                "type": "provider-state",
+                "provider": "",
+                "data": {
+                  "type": "thinking",
+                  "thinking": "Hmm.",
+                  "signature": "sig"
+                },
+                "summary": "Hmm."
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "error": {
+          "code": "INVALID_REQUEST",
+          "reason": "empty-string"
+        }
+      }
+    },
+    {
+      "name": "provider state without data",
+      "input": {
+        "protocol": "ai-core/1",
+        "messages": [
+          {
+            "role": "assistant",
+            "parts": [
+              {
+                "type": "provider-state",
+                "provider": "anthropic",
+                "summary": "Hmm."
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "error": {
+          "code": "INVALID_REQUEST",
+          "reason": "missing-field"
+        }
+      }
+    },
+    {
+      "name": "a providerState field that isn't an object",
+      "input": {
+        "protocol": "ai-core/1",
+        "messages": [
+          {
+            "role": "assistant",
+            "parts": [
+              {
+                "type": "text",
+                "text": "Hi",
+                "providerState": "sig"
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "error": {
+          "code": "INVALID_REQUEST",
+          "reason": "not-an-object"
+        }
+      }
+    },
+    {
+      "name": "a providerState field with an extra field",
+      "input": {
+        "protocol": "ai-core/1",
+        "messages": [
+          {
+            "role": "assistant",
+            "parts": [
+              {
+                "type": "text",
+                "text": "Hi",
+                "providerState": {
+                  "provider": "g",
+                  "data": 1,
+                  "x": 2
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "error": {
+          "code": "INVALID_REQUEST",
+          "reason": "unknown-field"
+        }
+      }
+    }
+  ]
+}

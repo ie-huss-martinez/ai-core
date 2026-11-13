@@ -1,0 +1,350 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ie-huss-martinez/ai-core/blob/main/formats/hm-ai-protocol/v1.schema.json",
+  "title": "hm-ai-protocol, version 1 (the ai-core/1 wire protocol)",
+  "description": "The ai-core/1 protocol between the browser transport and the request handler (docs/formats/hm-ai-protocol.md, ADR 0003, sdk-core ADR 0045). The root is the request body. Each server-sent event's data is described under $defs, by event type: startEvent, textDeltaEvent, summaryDeltaEvent, partEvent, finishEvent and errorEvent. Beyond this schema, the handler checks the context hash against the server's settings.",
+  "type": "object",
+  "required": ["protocol", "messages"],
+  "additionalProperties": false,
+  "properties": {
+    "protocol": {
+      "description": "The protocol identifier, always \"ai-core/1\" for this version.",
+      "const": "ai-core/1"
+    },
+    "messages": {
+      "description": "The conversation, ending with the message to answer.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/message"
+      }
+    }
+  },
+  "$defs": {
+    "json": {
+      "description": "Any JSON value, carried unchanged."
+    },
+    "base64": {
+      "description": "Standard, padded base64, with no whitespace.",
+      "type": "string",
+      "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$"
+    },
+    "providerState": {
+      "description": "State a provider requires back unchanged, attached to a part.",
+      "type": "object",
+      "required": ["provider", "data"],
+      "additionalProperties": false,
+      "properties": {
+        "provider": {
+          "type": "string",
+          "minLength": 1
+        },
+        "data": {
+          "$ref": "#/$defs/json"
+        }
+      }
+    },
+    "textPart": {
+      "type": "object",
+      "required": ["type", "text"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "text"
+        },
+        "text": {
+          "type": "string"
+        },
+        "providerState": {
+          "$ref": "#/$defs/providerState"
+        }
+      }
+    },
+    "imagePart": {
+      "type": "object",
+      "required": ["type", "mediaType", "data"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "image"
+        },
+        "mediaType": {
+          "enum": ["image/png", "image/jpeg", "image/webp", "image/gif"]
+        },
+        "data": {
+          "$ref": "#/$defs/base64"
+        }
+      }
+    },
+    "toolCallPart": {
+      "type": "object",
+      "required": ["type", "id", "name", "input"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "tool-call"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "input": {
+          "$ref": "#/$defs/json"
+        },
+        "providerState": {
+          "$ref": "#/$defs/providerState"
+        }
+      }
+    },
+    "toolResultPart": {
+      "type": "object",
+      "required": ["type", "callId", "content"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "tool-result"
+        },
+        "callId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "content": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "$ref": "#/$defs/textPart"
+                  },
+                  {
+                    "$ref": "#/$defs/imagePart"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "isError": {
+          "type": "boolean"
+        }
+      }
+    },
+    "providerStatePart": {
+      "type": "object",
+      "required": ["type", "provider", "data"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "provider-state"
+        },
+        "provider": {
+          "type": "string",
+          "minLength": 1
+        },
+        "data": {
+          "$ref": "#/$defs/json"
+        },
+        "summary": {
+          "type": "string"
+        }
+      }
+    },
+    "part": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/textPart"
+        },
+        {
+          "$ref": "#/$defs/imagePart"
+        },
+        {
+          "$ref": "#/$defs/toolCallPart"
+        },
+        {
+          "$ref": "#/$defs/toolResultPart"
+        },
+        {
+          "$ref": "#/$defs/providerStatePart"
+        }
+      ]
+    },
+    "message": {
+      "oneOf": [
+        {
+          "description": "A user message. Tool results belong here.",
+          "type": "object",
+          "required": ["role", "parts"],
+          "additionalProperties": false,
+          "properties": {
+            "role": {
+              "const": "user"
+            },
+            "parts": {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "$ref": "#/$defs/textPart"
+                  },
+                  {
+                    "$ref": "#/$defs/imagePart"
+                  },
+                  {
+                    "$ref": "#/$defs/toolResultPart"
+                  },
+                  {
+                    "$ref": "#/$defs/providerStatePart"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "description": "An assistant message. Tool calls belong here.",
+          "type": "object",
+          "required": ["role", "parts"],
+          "additionalProperties": false,
+          "properties": {
+            "role": {
+              "const": "assistant"
+            },
+            "parts": {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "$ref": "#/$defs/textPart"
+                  },
+                  {
+                    "$ref": "#/$defs/imagePart"
+                  },
+                  {
+                    "$ref": "#/$defs/toolCallPart"
+                  },
+                  {
+                    "$ref": "#/$defs/providerStatePart"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "startEvent": {
+      "description": "The data of the first event, start.",
+      "type": "object",
+      "required": ["protocol"],
+      "additionalProperties": false,
+      "properties": {
+        "protocol": {
+          "const": "ai-core/1"
+        }
+      }
+    },
+    "textDeltaEvent": {
+      "description": "The data of a text-delta event.",
+      "type": "object",
+      "required": ["text"],
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "type": "string"
+        }
+      }
+    },
+    "summaryDeltaEvent": {
+      "description": "The data of a summary-delta event.",
+      "type": "object",
+      "required": ["text"],
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "type": "string"
+        }
+      }
+    },
+    "partEvent": {
+      "description": "The data of a part event. The first is the handler's context part.",
+      "type": "object",
+      "required": ["part"],
+      "additionalProperties": false,
+      "properties": {
+        "part": {
+          "$ref": "#/$defs/part"
+        }
+      }
+    },
+    "finishEvent": {
+      "description": "The data of the last event of a successful stream, finish.",
+      "type": "object",
+      "required": ["finishReason", "usage"],
+      "additionalProperties": false,
+      "properties": {
+        "finishReason": {
+          "enum": ["stop", "length", "tool-calls", "refusal", "other"]
+        },
+        "rawFinishReason": {
+          "type": "string"
+        },
+        "usage": {
+          "type": "object",
+          "required": [],
+          "additionalProperties": false,
+          "properties": {
+            "inputTokens": {
+              "type": "number",
+              "minimum": 0
+            },
+            "outputTokens": {
+              "type": "number",
+              "minimum": 0
+            },
+            "cacheReadTokens": {
+              "type": "number",
+              "minimum": 0
+            },
+            "cacheWriteTokens": {
+              "type": "number",
+              "minimum": 0
+            },
+            "reasoningTokens": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    },
+    "errorEvent": {
+      "description": "The data of an error event, which replaces finish, and the error body before a stream: an AiError as serializeError writes it, without its cause or stack.",
+      "type": "object",
+      "required": ["name", "code", "message"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "const": "AiError"
+        },
+        "code": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]*$"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "object"
+        }
+      }
+    }
+  }
+}

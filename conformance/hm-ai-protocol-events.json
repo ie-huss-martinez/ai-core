@@ -1,0 +1,779 @@
+{
+  "format": "hm-conformance",
+  "version": 1,
+  "subject": "hm-ai-protocol-events",
+  "description": "Server-sent events of the ai-core/1 protocol, as the transport reads them (docs/formats/hm-ai-protocol.md). input is the events in order, each with its type in event and its parsed data in data, or its raw text in dataText. expected is the events delivered, with images base64, and whether finish arrived, or the rejection's code and reason. Hand-written.",
+  "cases": [
+    {
+      "name": "a whole answer",
+      "input": [
+        {
+          "event": "start",
+          "data": {
+            "protocol": "ai-core/1"
+          }
+        },
+        {
+          "event": "part",
+          "data": {
+            "part": {
+              "type": "provider-state",
+              "provider": "ai-core",
+              "data": {
+                "context": "71c702edfb2d7645f1054f9f536a7399d30d4a29aeb9610e6ed5916729c7b1f7"
+              }
+            }
+          }
+        },
+        {
+          "event": "text-delta",
+          "data": {
+            "text": "Hel"
+          }
+        },
+        {
+          "event": "text-delta",
+          "data": {
+            "text": "lo"
+          }
+        },
+        {
+          "event": "part",
+          "data": {
+            "part": {
+              "type": "text",
+              "text": "Hello"
+            }
+          }
+        },
+        {
+          "event": "finish",
+          "data": {
+            "finishReason": "stop",
+            "rawFinishReason": "end_turn",
+            "usage": {
+              "inputTokens": 10,
+              "outputTokens": 2
+            }
+          }
+        }
+      ],
+      "expected": {
+        "events": [
+          {
+            "type": "part",
+            "part": {
+              "type": "provider-state",
+              "provider": "ai-core",
+              "data": {
+                "context": "71c702edfb2d7645f1054f9f536a7399d30d4a29aeb9610e6ed5916729c7b1f7"
+              }
+            }
+          },
+          {
+            "type": "text-delta",
+            "text": "Hel"
+          },
+          {
+            "type": "text-delta",
+            "text": "lo"
+          },
+          {
+            "type": "part",
+            "part": {
+              "type": "text",
+              "text": "Hello"
+            }
+          },
+          {
+            "type": "finish",
+            "finishReason": "stop",
+            "rawFinishReason": "end_turn",
+            "usage": {
+              "inputTokens": 10,
+              "outputTokens": 2
+            }
+          }
+        ],
+        "finished": true
+      }
+    },
+    {
+      "name": "reasoning, a tool call and an image",
+      "input": [
+        {
+          "event": "start",
+          "data": {
+            "protocol": "ai-core/1"
+          }
+        },
+        {
+          "event": "summary-delta",
+          "data": {
+            "text": "Hmm."
+          }
+        },
+        {
+          "event": "part",
+          "data": {
+            "part": {
+              "type": "provider-state",
+              "provider": "anthropic",
+              "data": {
+                "type": "thinking",
+                "thinking": "Hmm.",
+                "signature": "sig"
+              },
+              "summary": "Hmm."
+            }
+          }
+        },
+        {
+          "event": "part",
+          "data": {
+            "part": {
+              "type": "tool-call",
+              "id": "call_1",
+              "name": "look_up",
+              "input": {
+                "query": "weather",
+                "units": ["c", null, 1.5, true]
+              }
+            }
+          }
+        },
+        {
+          "event": "part",
+          "data": {
+            "part": {
+              "type": "image",
+              "mediaType": "image/png",
+              "data": "iVBORw0KGgo="
+            }
+          }
+        },
+        {
+          "event": "finish",
+          "data": {
+            "finishReason": "tool-calls",
+            "usage": {
+              "reasoningTokens": 3,
+              "cacheReadTokens": 0,
+              "cacheWriteTokens": 1
+            }
+          }
+        }
+      ],
+      "expected": {
+        "events": [
+          {
+            "type": "summary-delta",
+            "text": "Hmm."
+          },
+          {
+            "type": "part",
+            "part": {
+              "type": "provider-state",
+              "provider": "anthropic",
+              "data": {
+                "type": "thinking",
+                "thinking": "Hmm.",
+                "signature": "sig"
+              },
+              "summary": "Hmm."
+            }
+          },
+          {
+            "type": "part",
+            "part": {
+              "type": "tool-call",
+              "id": "call_1",
+              "name": "look_up",
+              "input": {
+                "query": "weather",
+                "units": ["c", null, 1.5, true]
+              }
+            }
+          },
+          {
+            "type": "part",
+            "part": {
+              "type": "image",
+              "mediaType": "image/png",
+              "data": "iVBORw0KGgo="
+            }
+          },
+          {
+            "type": "finish",
+            "finishReason": "tool-calls",
+            "usage": {
+              "reasoningTokens": 3,
+              "cacheReadTokens": 0,
+              "cacheWriteTokens": 1
+            }
+          }
+        ],
+        "finished": true
+      }
+    },
+    {
+      "name": "event types it doesn't know are ignored",
+      "input": [
+        {
+          "event": "start",
+          "data": {
+            "protocol": "ai-core/1"
+          }
+        },
+        {
+          "event": "ping",
+          "data": {}
+        },
+        {
+          "event": "text-delta",
+          "data": {
+            "text": "Hi"
+          }
+        },
+        {
+          "event": "finish",
+          "data": {
+            "finishReason": "stop",
+            "usage": {}
+          }
+        }
+      ],
+      "expected": {
+        "events": [
+          {
+            "type": "text-delta",
+            "text": "Hi"
+          },
+          {
+            "type": "finish",
+            "finishReason": "stop",
+            "usage": {}
+          }
+        ],
+        "finished": true
+      }
+    },
+    {
+      "name": "events after finish are ignored",
+      "input": [
+        {
+          "event": "start",
+          "data": {
+            "protocol": "ai-core/1"
+          }
+        },
+        {
+          "event": "finish",
+          "data": {
+            "finishReason": "stop",
+            "usage": {}
+          }
+        },
+        {
+          "event": "text-delta",
+          "data": {
+            "text": "late"
+          }
+        }
+      ],
+      "expected": {
+        "events": [
+          {
+            "type": "finish",
+            "finishReason": "stop",
+            "usage": {}
+          }
+        ],
+        "finished": true
+      }
+    },
+    {
+      "name": "a stream that ends without finish",
+      "input": [
+        {
+          "event": "start",
+          "data": {
+            "protocol": "ai-core/1"
+          }
+        },
+        {
+          "event": "text-delta",
+          "data": {
+            "text": "Hi"
+          }
+        }
+      ],
+      "expected": {
+        "events": [
+          {
+            "type": "text-delta",
+            "text": "Hi"
+          }
+        ],
+        "finished": false
+      }
+    },
+    {
+      "name": "no start event",
+      "input": [
+        {
+          "event": "text-delta",
+          "data": {
+            "text": "Hi"
+          }
+        },
+        {
+          "event": "finish",
+          "data": {
+            "finishReason": "stop",
+            "usage": {}
+          }
+        }
+      ],
+      "expected": {
+        "error": {
+          "code": "PROVIDER_RESPONSE_INVALID",
+          "reason": "missing-start"
+        }
+      }
+    },
+    {
+      "name": "another protocol version",
+      "input": [
+        {
+          "event": "start",
+          "data": {
+            "protocol": "ai-core/2"
+          }
+        },
+        {
+          "event": "finish",
+          "data": {
+            "finishReason": "stop",
+            "usage": {}
+          }
+        }
+      ],
+      "expected": {
+        "error": {
+          "code": "PROTOCOL_MISMATCH",
+          "reason": "unsupported-protocol"
+        }
+      }
+    },
+    {
+      "name": "two start events",
+      "input": [
+        {
+          "event": "start",
+          "data": {
+            "protocol": "ai-core/1"
+          }
+        },
+        {
+          "event": "start",
+          "data": {
+            "protocol": "ai-core/1"
+          }
+        },
+        {
+          "event": "finish",
+          "data": {
+            "finishReason": "stop",
+            "usage": {}
+          }
+        }
+      ],
+      "expected": {
+        "error": {
+          "code": "PROVIDER_RESPONSE_INVALID",
+          "reason": "duplicate-start"
+        }
+      }
+    },
+    {
+      "name": "data that isn't JSON",
+      "input": [
+        {
+          "event": "start",
+          "data": {
+            "protocol": "ai-core/1"
+          }
+        },
+        {
+          "event": "text-delta",
+          "dataText": "{"
+        }
+      ],
+      "expected": {
+        "error": {
+          "code": "PROVIDER_RESPONSE_INVALID",
+          "reason": "invalid-event-data"
+        }
+      }
+    },
+    {
+      "name": "data that isn't an object",
+      "input": [
+        {
+          "event": "start",
+          "data": {
+            "protocol": "ai-core/1"
+          }
+        },
+        {
+          "event": "text-delta",
+          "data": ["Hi"]
+        }
+      ],
+      "expected": {
+        "error": {
+          "code": "PROVIDER_RESPONSE_INVALID",
+          "reason": "invalid-event-data"
+        }
+      }
+    },
+    {
+      "name": "a start field the protocol doesn't have",
+      "input": [
+        {
+          "event": "start",
+          "data": {
+            "protocol": "ai-core/1",
+            "x": 1
+          }
+        },
+        {
+          "event": "finish",
+          "data": {
+            "finishReason": "stop",
+            "usage": {}
+          }
+        }
+      ],
+      "expected": {
+        "error": {
+          "code": "PROVIDER_RESPONSE_INVALID",
+          "reason": "unknown-field"
+        }
+      }
+    },
+    {
+      "name": "a delta without text",
+      "input": [
+        {
+          "event": "start",
+          "data": {
+            "protocol": "ai-core/1"
+          }
+        },
+        {
+          "event": "text-delta",
+          "data": {
+            "text": 1
+          }
+        },
+        {
+          "event": "finish",
+          "data": {
+            "finishReason": "stop",
+            "usage": {}
+          }
+        }
+      ],
+      "expected": {
+        "error": {
+          "code": "PROVIDER_RESPONSE_INVALID",
+          "reason": "invalid-delta"
+        }
+      }
+    },
+    {
+      "name": "a delta field the protocol doesn't have",
+      "input": [
+        {
+          "event": "start",
+          "data": {
+            "protocol": "ai-core/1"
+          }
+        },
+        {
+          "event": "summary-delta",
+          "data": {
+            "text": "a",
+            "x": 1
+          }
+        },
+        {
+          "event": "finish",
+          "data": {
+            "finishReason": "stop",
+            "usage": {}
+          }
+        }
+      ],
+      "expected": {
+        "error": {
+          "code": "PROVIDER_RESPONSE_INVALID",
+          "reason": "unknown-field"
+        }
+      }
+    },
+    {
+      "name": "a part outside the message model",
+      "input": [
+        {
+          "event": "start",
+          "data": {
+            "protocol": "ai-core/1"
+          }
+        },
+        {
+          "event": "part",
+          "data": {
+            "part": {
+              "type": "image",
+              "mediaType": "image/png",
+              "data": "https://x"
+            }
+          }
+        },
+        {
+          "event": "finish",
+          "data": {
+            "finishReason": "stop",
+            "usage": {}
+          }
+        }
+      ],
+      "expected": {
+        "error": {
+          "code": "PROVIDER_RESPONSE_INVALID",
+          "reason": "invalid-part"
+        }
+      }
+    },
+    {
+      "name": "a part event field the protocol doesn't have",
+      "input": [
+        {
+          "event": "start",
+          "data": {
+            "protocol": "ai-core/1"
+          }
+        },
+        {
+          "event": "part",
+          "data": {
+            "part": {
+              "type": "text",
+              "text": "a"
+            },
+            "x": 1
+          }
+        },
+        {
+          "event": "finish",
+          "data": {
+            "finishReason": "stop",
+            "usage": {}
+          }
+        }
+      ],
+      "expected": {
+        "error": {
+          "code": "PROVIDER_RESPONSE_INVALID",
+          "reason": "unknown-field"
+        }
+      }
+    },
+    {
+      "name": "an unknown finish reason",
+      "input": [
+        {
+          "event": "start",
+          "data": {
+            "protocol": "ai-core/1"
+          }
+        },
+        {
+          "event": "finish",
+          "data": {
+            "finishReason": "done",
+            "usage": {}
+          }
+        }
+      ],
+      "expected": {
+        "error": {
+          "code": "PROVIDER_RESPONSE_INVALID",
+          "reason": "invalid-finish"
+        }
+      }
+    },
+    {
+      "name": "a rawFinishReason that isn't a string",
+      "input": [
+        {
+          "event": "start",
+          "data": {
+            "protocol": "ai-core/1"
+          }
+        },
+        {
+          "event": "finish",
+          "data": {
+            "finishReason": "stop",
+            "rawFinishReason": 1,
+            "usage": {}
+          }
+        }
+      ],
+      "expected": {
+        "error": {
+          "code": "PROVIDER_RESPONSE_INVALID",
+          "reason": "invalid-finish"
+        }
+      }
+    },
+    {
+      "name": "a finish without usage",
+      "input": [
+        {
+          "event": "start",
+          "data": {
+            "protocol": "ai-core/1"
+          }
+        },
+        {
+          "event": "finish",
+          "data": {
+            "finishReason": "stop"
+          }
+        }
+      ],
+      "expected": {
+        "error": {
+          "code": "PROVIDER_RESPONSE_INVALID",
+          "reason": "invalid-usage"
+        }
+      }
+    },
+    {
+      "name": "a negative token count",
+      "input": [
+        {
+          "event": "start",
+          "data": {
+            "protocol": "ai-core/1"
+          }
+        },
+        {
+          "event": "finish",
+          "data": {
+            "finishReason": "stop",
+            "usage": {
+              "inputTokens": -1
+            }
+          }
+        }
+      ],
+      "expected": {
+        "error": {
+          "code": "PROVIDER_RESPONSE_INVALID",
+          "reason": "invalid-usage"
+        }
+      }
+    },
+    {
+      "name": "a usage field the protocol doesn't have",
+      "input": [
+        {
+          "event": "start",
+          "data": {
+            "protocol": "ai-core/1"
+          }
+        },
+        {
+          "event": "finish",
+          "data": {
+            "finishReason": "stop",
+            "usage": {
+              "costUsd": 1
+            }
+          }
+        }
+      ],
+      "expected": {
+        "error": {
+          "code": "PROVIDER_RESPONSE_INVALID",
+          "reason": "unknown-field"
+        }
+      }
+    },
+    {
+      "name": "an error that isn't an AiError",
+      "input": [
+        {
+          "event": "start",
+          "data": {
+            "protocol": "ai-core/1"
+          }
+        },
+        {
+          "event": "error",
+          "data": {
+            "name": "TypeError",
+            "code": "UNKNOWN",
+            "message": "x"
+          }
+        }
+      ],
+      "expected": {
+        "error": {
+          "code": "PROVIDER_RESPONSE_INVALID",
+          "reason": "unknown-error"
+        }
+      }
+    },
+    {
+      "name": "the handler's error, rebuilt",
+      "input": [
+        {
+          "event": "start",
+          "data": {
+            "protocol": "ai-core/1"
+          }
+        },
+        {
+          "event": "text-delta",
+          "data": {
+            "text": "Hi"
+          }
+        },
+        {
+          "event": "error",
+          "data": {
+            "name": "AiError",
+            "code": "PROVIDER_OVERLOADED",
+            "message": "Overloaded.",
+            "details": {
+              "retryable": true,
+              "status": 529
+            }
+          }
+        }
+      ],
+      "expected": {
+        "error": {
+          "code": "PROVIDER_OVERLOADED"
+        }
+      }
+    }
+  ]
+}

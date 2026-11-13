@@ -9,7 +9,13 @@ import type {
   AiTool,
   AiToolChoice,
 } from "../core/model/provider.js";
-import { AI_CORE, AI_CORE_PROTOCOL, decodeMessages, encodePart } from "../core/protocol/wire.js";
+import {
+  AI_CORE,
+  AI_CORE_PROTOCOL,
+  decodeRequestBody,
+  encodePart,
+  invalid,
+} from "../core/protocol/wire.js";
 import type { AiLimitWarning } from "../core/stream/call-guard.js";
 import { contextHash } from "./context-hash.js";
 import { readBody } from "./read-body.js";
@@ -201,32 +207,6 @@ function isJson(request: Request): boolean {
   return type?.split(";", 1)[0]?.trim().toLowerCase() === "application/json";
 }
 
-function checkBody(value: unknown): AiHandlerBody {
-  if (!isObject(value)) {
-    throw fail("INVALID_REQUEST", "The body must be a JSON object.");
-  }
-  const protocol = value["protocol"];
-  if (typeof protocol !== "string") {
-    throw fail("INVALID_REQUEST", "The body has no protocol.");
-  }
-  if (protocol !== AI_CORE_PROTOCOL) {
-    throw new AiError("PROTOCOL_MISMATCH", "The handler doesn't speak this protocol version.", {
-      details: { supported: [AI_CORE_PROTOCOL], retryable: false },
-    });
-  }
-  for (const key of Object.keys(value)) {
-    if (key !== "protocol" && key !== "messages") {
-      const named = /^[A-Za-z][A-Za-z0-9_]{0,63}$/.test(key);
-      throw new AiError(
-        "INVALID_REQUEST",
-        `The body has ${named ? `"${key}"` : "a field"} besides protocol and messages. The server sets everything else, in prepare.`,
-        { details: { ...(named ? { path: key } : {}), retryable: false } },
-      );
-    }
-  }
-  return { protocol: AI_CORE_PROTOCOL, messages: decodeMessages(value["messages"]) };
-}
-
 /** Checks prepare's settings, naming the first invalid one but never its value. */
 function checkSettings(value: unknown): AiCallSettings {
   const invalid = (what: string) =>
@@ -288,15 +268,17 @@ function checkContext(messages: readonly AiMessage[], hash: string): AiMessage[]
       }
       const context = isObject(part.data) ? part.data["context"] : undefined;
       if (typeof context !== "string") {
-        throw new AiError("INVALID_REQUEST", "An ai-core state part has no context hash.", {
-          details: { path: `messages[${index}]`, retryable: false },
-        });
+        throw invalid(
+          "An ai-core state part has no context hash.",
+          `messages[${index}]`,
+          "invalid-context-hash",
+        );
       }
       if (context !== hash) {
         throw new AiError(
           "CONTEXT_CHANGED",
           "The system prompt or tools changed since this conversation started. Start a new conversation, or continue with withoutProviderState(messages).",
-          { details: { messageIndex: index, retryable: false } },
+          { details: { messageIndex: index, reason: "context-changed", retryable: false } },
         );
       }
       return false;
@@ -491,9 +473,9 @@ export function createAiHandler(
         parsed = JSON.parse(text);
       } catch {
         // The parser's message quotes the body, so it isn't kept.
-        throw fail("INVALID_REQUEST", "The body isn't valid JSON.");
+        throw invalid("The body isn't valid JSON.", "", "malformed-body");
       }
-      const body = checkBody(parsed);
+      const body: AiHandlerBody = decodeRequestBody(parsed);
 
       let prepared: unknown;
       try {
@@ -510,9 +492,10 @@ export function createAiHandler(
       const hash = await contextHash(settings.system, settings.tools);
       const messages = checkContext(body.messages, hash);
       if (messages.length === 0) {
-        throw fail(
-          "INVALID_REQUEST",
+        throw invalid(
           "A request needs at least one message besides ai-core's state.",
+          "messages",
+          "no-messages",
         );
       }
       const call: AiRequest = {
