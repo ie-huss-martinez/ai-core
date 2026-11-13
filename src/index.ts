@@ -1,13 +1,58 @@
 /**
- * Core of ai-core: the message model, provider types, errors, limits and the
- * browser transport.
+ * Core of ai-core: the message model, provider types, errors, limits and
+ * the message catalogue. The browser transport joins it in a later release.
  *
  * @remarks
  * This entry makes no request on import and touches no DOM, so it imports in
- * browsers, Node and Workers runtimes. The model and transport arrive in the
- * next releases (ADR 0035 in sdk-core).
+ * browsers, Node and Workers runtimes (sdk-core ADR 0035).
  *
  * @packageDocumentation
  */
 
-export {};
+export type { AiErrorCode } from "./core/errors/ai-error.js";
+export { AiError, isAiError } from "./core/errors/ai-error.js";
+export type {
+  AiLimitName,
+  RequestLimitDefinitions,
+  RequestLimitOverrides,
+  RequestPolicy,
+  ResponseLimitDefinitions,
+  ResponseLimitOverrides,
+  ResponsePolicy,
+} from "./core/limits/ai-limits.js";
+export {
+  requestLimitDefinitions,
+  requestLimits,
+  responseLimitDefinitions,
+  responseLimits,
+} from "./core/limits/ai-limits.js";
+export type {
+  AiFinishReason,
+  AiImageMediaType,
+  AiImagePart,
+  AiJsonValue,
+  AiMessage,
+  AiPart,
+  AiProviderState,
+  AiProviderStatePart,
+  AiRole,
+  AiTextPart,
+  AiToolCallPart,
+  AiToolResultPart,
+  AiUsage,
+} from "./core/model/message.js";
+export type {
+  AiCallOptions,
+  AiEvent,
+  AiFinishEvent,
+  AiPartEvent,
+  AiProvider,
+  AiRequest,
+  AiResult,
+  AiSummaryDeltaEvent,
+  AiTextDeltaEvent,
+  AiTool,
+  AiToolChoice,
+} from "./core/model/provider.js";
+export type { AiCoreMessageCatalogue } from "./messages/en.js";
+export { aiCoreMessages } from "./messages/en.js";

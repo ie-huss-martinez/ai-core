@@ -4,4 +4,334 @@
 
 ```ts
 
+import { FilePolicy } from '@hussmartinez/sdk-core';
+import { FilePolicyOverrides } from '@hussmartinez/sdk-core';
+import { Limits } from '@hussmartinez/sdk-core';
+import { SdkCoreErrorCode } from '@hussmartinez/sdk-core';
+import { SdkError } from '@hussmartinez/sdk-core';
+
+// @public
+export interface AiCallOptions {
+    readonly signal?: AbortSignal;
+}
+
+// @public
+export type AiCoreMessageCatalogue = typeof aiCoreMessages;
+
+// @public
+export const aiCoreMessages: {
+    readonly "errors.INVALID_CONFIGURATION": "The assistant isn't set up correctly. Please contact the site's support.";
+    readonly "errors.INVALID_REQUEST": "This message couldn't be sent. Please try again.";
+    readonly "errors.MISSING_API_KEY": "The assistant isn't set up correctly. Please contact the site's support.";
+    readonly "errors.BROWSER_KEY_REFUSED": "The assistant isn't set up correctly. Please contact the site's support.";
+    readonly "errors.METHOD_NOT_ALLOWED": "This message couldn't be sent. Please try again.";
+    readonly "errors.UNSUPPORTED_MEDIA_TYPE": "This message couldn't be sent. Please try again.";
+    readonly "errors.ORIGIN_NOT_ALLOWED": "This page isn't allowed to use the assistant.";
+    readonly "errors.PROTOCOL_MISMATCH": "The page and the assistant are out of date with each other. Reload the page and try again.";
+    readonly "errors.CONTEXT_CHANGED": "The assistant's settings changed during this conversation. Start a new conversation to continue.";
+    readonly "errors.PREPARE_FAILED": "The assistant couldn't take your message. Please try again later.";
+    readonly "errors.REQUEST_TOO_LARGE": "This message is {actual, fileSize}, which is over the {maximum, fileSize} limit. Send less text or smaller images.";
+    readonly "errors.RESPONSE_TOO_LARGE": "The response was over the {maximum, fileSize} limit, so it was stopped.";
+    readonly "errors.STREAM_TIMEOUT": "The response took longer than {maximum, duration}, so it was stopped.";
+    readonly "errors.STREAM_IDLE": "The assistant stopped responding for {maximum, duration}, so the response was stopped. Please try again.";
+    readonly "errors.STREAM_TRUNCATED": "The response was cut off. Please try again.";
+    readonly "errors.PROVIDER_RESPONSE_INVALID": "The assistant sent a response that couldn't be read. Please try again.";
+    readonly "errors.SPEND_LIMIT_REACHED": "The assistant has reached its usage limit. Please try again later.";
+    readonly "warnings.responseBytes": "This response is large ({actual, fileSize}), and may be slow to show.";
+    readonly "warnings.streamDuration": "This response is taking a long time.";
+    readonly "warnings.idleTime": "The assistant is taking a long time to respond.";
+    readonly "warnings.requestBytes": "This message is large ({actual, fileSize}), and may be slow to send.";
+    readonly "errors.UNKNOWN": "Something went wrong. Please try again.";
+    readonly "errors.ABORTED": "The operation was cancelled.";
+    readonly "errors.TIMEOUT": "The operation took too long and was stopped.";
+    readonly "errors.WORKER_START_FAILED": "The file processor couldn't start. Reload the page and try again.";
+    readonly "errors.WORKER_PROTOCOL_MISMATCH": "The file processor is out of date. Reload the page to update it.";
+    readonly "errors.WORKER_CRASHED": "The file processor stopped unexpectedly. Please try again.";
+    readonly "errors.WORKER_TERMINATED": "The operation was stopped before it finished. Please try again.";
+    readonly "errors.WORKER_METHOD_NOT_FOUND": "This operation isn't available. Reload the page and try again.";
+    readonly "errors.WORKER_DATA_NOT_CLONEABLE": "Something went wrong while processing the file. Please try again.";
+    readonly "errors.UNSUPPORTED_ENVIRONMENT": "This browser doesn't support a feature this tool needs. Update your browser, or try another one.";
+    readonly "errors.FILE_TOO_LARGE": "This file is {actual, fileSize}, which is over the {maximum, fileSize} limit.";
+    readonly "errors.TOO_MANY_FILES": {
+        readonly $plural: "maximum";
+    } & {
+        readonly one: "You can add {maximum} file at a time.";
+        readonly other: "You can add up to {maximum} files at a time.";
+    };
+    readonly "errors.DECODED_SIZE_TOO_LARGE": "This file expands to more than {maximum, fileSize} when opened, which is over the limit.";
+    readonly "errors.PROCESSING_TIME_EXCEEDED": "Processing this file took too long and was stopped.";
+    readonly "warnings.maxFileSize": "This file is {actual, fileSize}. Large files may be slow to process.";
+    readonly "warnings.maxFiles": "Adding {actual} files at once may be slow.";
+    readonly "warnings.maxDecodedSize": "This file is very large once opened and may be slow to process.";
+    readonly "warnings.maxProcessingTime": "This is taking longer than usual.";
+    readonly "keys.control": "Ctrl";
+    readonly "keys.alt": "Alt";
+    readonly "keys.shift": "Shift";
+    readonly "keys.meta": "Meta";
+    readonly "keys.apple.control": "\u2303";
+    readonly "keys.apple.alt": "\u2325";
+    readonly "keys.apple.shift": "\u21E7";
+    readonly "keys.apple.meta": "\u2318";
+    readonly "keys.space": "Space";
+    readonly "keys.enter": "Enter";
+    readonly "keys.escape": "Esc";
+    readonly "keys.tab": "Tab";
+    readonly "keys.delete": "Delete";
+    readonly "keys.backspace": "Backspace";
+    readonly "keys.arrowUp": "\u2191";
+    readonly "keys.arrowDown": "\u2193";
+    readonly "keys.arrowLeft": "\u2190";
+    readonly "keys.arrowRight": "\u2192";
+    readonly "keys.home": "Home";
+    readonly "keys.end": "End";
+    readonly "keys.pageUp": "Page Up";
+    readonly "keys.pageDown": "Page Down";
+};
+
+// @public
+export class AiError extends SdkError<AiErrorCode> {
+    readonly name = "AiError";
+}
+
+// @public
+export type AiErrorCode = SdkCoreErrorCode | "INVALID_CONFIGURATION" | "INVALID_REQUEST" | "MISSING_API_KEY" | "BROWSER_KEY_REFUSED" | "METHOD_NOT_ALLOWED" | "UNSUPPORTED_MEDIA_TYPE" | "ORIGIN_NOT_ALLOWED" | "PROTOCOL_MISMATCH" | "CONTEXT_CHANGED" | "PREPARE_FAILED" | "REQUEST_TOO_LARGE" | "RESPONSE_TOO_LARGE" | "STREAM_TIMEOUT" | "STREAM_IDLE" | "STREAM_TRUNCATED" | "PROVIDER_RESPONSE_INVALID" | "SPEND_LIMIT_REACHED";
+
+// @public
+export type AiEvent = AiTextDeltaEvent | AiSummaryDeltaEvent | AiPartEvent | AiFinishEvent;
+
+// @public
+export interface AiFinishEvent {
+    // (undocumented)
+    readonly finishReason: AiFinishReason;
+    // (undocumented)
+    readonly rawFinishReason?: string;
+    // (undocumented)
+    readonly type: "finish";
+    // (undocumented)
+    readonly usage: AiUsage;
+}
+
+// @public
+export type AiFinishReason = "stop" | "length" | "tool-calls" | "refusal" | "other";
+
+// @public
+export type AiImageMediaType = "image/png" | "image/jpeg" | "image/webp" | "image/gif";
+
+// @public
+export interface AiImagePart {
+    // (undocumented)
+    readonly data: Uint8Array;
+    // (undocumented)
+    readonly mediaType: AiImageMediaType;
+    // (undocumented)
+    readonly type: "image";
+}
+
+// @public
+export type AiJsonValue = null | boolean | number | string | readonly AiJsonValue[] | {
+    readonly [key: string]: AiJsonValue;
+};
+
+// @public
+export type AiLimitName = keyof ResponseLimitDefinitions | keyof RequestLimitDefinitions;
+
+// @public
+export interface AiMessage {
+    // (undocumented)
+    readonly parts: readonly AiPart[];
+    // (undocumented)
+    readonly role: AiRole;
+}
+
+// @public
+export type AiPart = AiTextPart | AiImagePart | AiToolCallPart | AiToolResultPart | AiProviderStatePart;
+
+// @public
+export interface AiPartEvent {
+    // (undocumented)
+    readonly part: AiPart;
+    // (undocumented)
+    readonly type: "part";
+}
+
+// @public
+export interface AiProvider {
+    complete(request: AiRequest, options?: AiCallOptions): Promise<AiResult>;
+    readonly provider: string;
+    stream(request: AiRequest, options?: AiCallOptions): AsyncIterable<AiEvent>;
+}
+
+// @public
+export interface AiProviderState {
+    readonly data: AiJsonValue;
+    readonly provider: string;
+}
+
+// @public
+export interface AiProviderStatePart {
+    readonly data: AiJsonValue;
+    readonly provider: string;
+    readonly summary?: string;
+    // (undocumented)
+    readonly type: "provider-state";
+}
+
+// @public
+export interface AiRequest {
+    readonly maxOutputTokens?: number;
+    readonly messages: readonly AiMessage[];
+    readonly model?: string;
+    readonly providerOptions?: {
+        readonly [provider: string]: unknown;
+    };
+    readonly system?: string;
+    // (undocumented)
+    readonly toolChoice?: AiToolChoice;
+    readonly tools?: readonly AiTool[];
+}
+
+// @public
+export interface AiResult {
+    // (undocumented)
+    readonly finishReason: AiFinishReason;
+    readonly message: AiMessage & {
+        readonly role: "assistant";
+    };
+    readonly rawFinishReason?: string;
+    // (undocumented)
+    readonly usage: AiUsage;
+}
+
+// @public
+export type AiRole = "user" | "assistant";
+
+// @public
+export interface AiSummaryDeltaEvent {
+    // (undocumented)
+    readonly text: string;
+    // (undocumented)
+    readonly type: "summary-delta";
+}
+
+// @public
+export interface AiTextDeltaEvent {
+    // (undocumented)
+    readonly text: string;
+    // (undocumented)
+    readonly type: "text-delta";
+}
+
+// @public
+export interface AiTextPart {
+    readonly providerState?: AiProviderState;
+    // (undocumented)
+    readonly text: string;
+    // (undocumented)
+    readonly type: "text";
+}
+
+// @public
+export interface AiTool {
+    readonly description?: string;
+    readonly inputSchema: AiJsonValue;
+    // (undocumented)
+    readonly name: string;
+}
+
+// @public
+export interface AiToolCallPart {
+    readonly id: string;
+    readonly input: AiJsonValue;
+    readonly name: string;
+    readonly providerState?: AiProviderState;
+    // (undocumented)
+    readonly type: "tool-call";
+}
+
+// @public
+export type AiToolChoice = "auto" | "none";
+
+// @public
+export interface AiToolResultPart {
+    readonly callId: string;
+    readonly content: string | readonly (AiTextPart | AiImagePart)[];
+    readonly isError?: boolean;
+    // (undocumented)
+    readonly type: "tool-result";
+}
+
+// @public
+export interface AiUsage {
+    // (undocumented)
+    readonly cacheReadTokens?: number;
+    // (undocumented)
+    readonly cacheWriteTokens?: number;
+    // (undocumented)
+    readonly inputTokens?: number;
+    // (undocumented)
+    readonly outputTokens?: number;
+    // (undocumented)
+    readonly reasoningTokens?: number;
+}
+
+// @public
+export function isAiError<Code extends AiErrorCode = AiErrorCode>(value: unknown, code?: Code): value is AiError & {
+    readonly code: Code;
+};
+
+// @public
+export type RequestLimitDefinitions = typeof requestLimitDefinitions;
+
+// @public
+export const requestLimitDefinitions: {
+    readonly requestBytes: {
+        readonly code: "REQUEST_TOO_LARGE";
+        readonly unit: "bytes";
+        readonly default: 8000000;
+        readonly warning: 4000000;
+    };
+};
+
+// @public
+export type RequestLimitOverrides = FilePolicyOverrides<RequestLimitDefinitions>;
+
+// @public
+export const requestLimits: Limits<RequestLimitDefinitions>;
+
+// @public
+export type RequestPolicy = FilePolicy<RequestLimitDefinitions>;
+
+// @public
+export type ResponseLimitDefinitions = typeof responseLimitDefinitions;
+
+// @public
+export const responseLimitDefinitions: {
+    readonly responseBytes: {
+        readonly code: "RESPONSE_TOO_LARGE";
+        readonly unit: "bytes";
+        readonly default: 16000000;
+        readonly warning: 8000000;
+    };
+    readonly streamDuration: {
+        readonly code: "STREAM_TIMEOUT";
+        readonly unit: "milliseconds";
+        readonly default: number;
+        readonly warning: number;
+    };
+    readonly idleTime: {
+        readonly code: "STREAM_IDLE";
+        readonly unit: "milliseconds";
+        readonly default: number;
+    };
+};
+
+// @public
+export type ResponseLimitOverrides = FilePolicyOverrides<ResponseLimitDefinitions>;
+
+// @public
+export const responseLimits: Limits<ResponseLimitDefinitions>;
+
+// @public
+export type ResponsePolicy = FilePolicy<ResponseLimitDefinitions>;
+
 ```

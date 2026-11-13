@@ -10,3 +10,7 @@ First release of `@hussmartinez/ai-core`, the `@hussmartinez` family's AI provid
   - one entry per provider: `/anthropic`, `/gemini` and `/openai-compatible`;
   - a contract-test suite for custom providers, `@hussmartinez/ai-core/testing`.
 - **No request on import:** no entry makes a network request when it's imported, in browsers or on servers.
+- **Errors:** `AiError` extends sdk-core's `SdkError`, with stable codes (`AiErrorCode`) and `isAiError(error, code?)`, which recognises errors from any copy of the package or rebuilt from the wire. Show users `aiCoreMessages`' text for the code, never `error.message`.
+- **Limits:** `responseLimits` (`responseBytes` 16 MB, `streamDuration` 15 minutes, `idleTime` 2 minutes) for adapters and the transport, and `requestLimits` (`requestBytes` 8 MB) for the request handler. Each has its own error code. Hosts override them with `{ maximum, warning }`, and unknown names throw.
+- **Messages:** `aiCoreMessages`, the English catalogue with text for every error code and limit warning, for `createMessages` from `@hussmartinez/sdk-core`.
+- **The message model and the provider shape:** `AiMessage` with `text`, `image` (bytes only), `tool-call`, `tool-result` and opaque `provider-state` parts, and `AiProvider` with `complete()` and `stream()`, which SDK ports match structurally without importing ai-core.

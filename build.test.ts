@@ -56,6 +56,19 @@ describe("the built package", () => {
     }
   });
 
+  it("imports sdk-core instead of bundling it", () => {
+    expect(externalPackages).toContain("@hussmartinez/sdk-core");
+    const index = files.find((file) => file.fileName === "index.js");
+    expect(index?.type === "chunk" && index.code).toContain('from "@hussmartinez/sdk-core"');
+    for (const file of files) {
+      if (file.type === "chunk") {
+        // A bundled sdk-core would bring its own copy of SdkError, and a page
+        // using several packages of the family would load sdk-core twice.
+        expect(file.code, file.fileName).not.toContain("class SdkError");
+      }
+    }
+  });
+
   it("bundles no dependency and leaks no local paths", () => {
     for (const file of files) {
       if (file.type === "chunk") {
