@@ -71,7 +71,13 @@ export async function* readSseEvents(
       } catch {
         throw invalidResponse("The response isn't valid UTF-8.");
       }
-      yield* parser.push(text);
+      for (const event of parser.push(text)) {
+        // A chunk can hold several events: none goes out after an abort.
+        if (guard.signal.aborted) {
+          throw guard.error();
+        }
+        yield event;
+      }
     }
     let rest: string;
     try {
@@ -79,8 +85,12 @@ export async function* readSseEvents(
     } catch {
       throw invalidResponse("The response ends in the middle of a UTF-8 character.");
     }
-    yield* parser.push(rest);
-    yield* parser.finish();
+    for (const event of [...parser.push(rest), ...parser.finish()]) {
+      if (guard.signal.aborted) {
+        throw guard.error();
+      }
+      yield event;
+    }
     completed = true;
   } catch (error) {
     const failure = isAiError(error)

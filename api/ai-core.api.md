@@ -147,6 +147,14 @@ export type AiJsonValue = null | boolean | number | string | readonly AiJsonValu
 export type AiLimitName = keyof ResponseLimitDefinitions | keyof RequestLimitDefinitions;
 
 // @public
+export interface AiLimitWarning {
+    readonly actual: number;
+    // (undocumented)
+    readonly limit: "responseBytes" | "streamDuration" | "idleTime";
+    readonly maximum: number;
+}
+
+// @public
 export interface AiMessage {
     // (undocumented)
     readonly parts: readonly AiPart[];

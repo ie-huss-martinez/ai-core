@@ -9,7 +9,7 @@ Use [`template.md`](template.md) for new records. Name files `NNNN-short-title.m
 | # | Decision | Status |
 |---|---|---|
 | [0001](0001-message-model-and-provider-state.md) | The message model, and provider state replayed unchanged | Accepted |
-| [0002](0002-provider-shape.md) | One provider shape for adapters, the transport and custom providers | Accepted |
+| [0002](0002-provider-shape.md) | One provider shape for adapters, the transport and custom providers | Accepted; amended 2026-11-13 (the contract suite takes `describe` and `it`) |
 | [0003](0003-request-handler-and-wire-protocol.md) | The request handler, a required `prepare`, and the `ai-core/1` protocol | Accepted |
 | [0004](0004-keys-and-runtime-detection.md) | Keys stay on the server: how adapters hold keys and recognise a server | Accepted |
 | [0005](0005-limits-and-streams.md) | Limits on requests and responses, and how streams are read | Accepted |
