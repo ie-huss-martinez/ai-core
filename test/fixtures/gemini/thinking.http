@@ -1,0 +1,40 @@
+# provider: gemini
+# endpoint: POST https://generativelanguage.googleapis.com/v1beta/interactions?alt=sse
+# api-revision: 2026-05-20
+# model: gemini-3.8-flash
+# date: 2026-11-13
+# kind: synthetic
+# source: https://aistudio.google.com/llms-full.txt (Interactions quickstart stream example; Streaming with thinking; Stream tool calls)
+HTTP/1.1 200 OK
+content-type: text/event-stream; charset=utf-8
+
+event: interaction.created
+data: {"interaction":{"id":"v1_fixture","status":"in_progress","model":"gemini-3.8-flash"},"event_type":"interaction.created"}
+
+event: step.start
+data: {"index":0,"step":{"type":"thought"},"event_type":"step.start"}
+
+event: step.delta
+data: {"index":0,"delta":{"type":"thought_summary","content":{"type":"text","text":"The user wants a greeting. "}},"event_type":"step.delta"}
+
+event: step.delta
+data: {"index":0,"delta":{"type":"thought_summary","content":{"type":"text","text":"Keep it short."}},"event_type":"step.delta"}
+
+event: step.delta
+data: {"index":0,"delta":{"signature":"EvEFCu4Ffixture-signature-0001","type":"thought_signature"},"event_type":"step.delta"}
+
+event: step.stop
+data: {"index":0,"event_type":"step.stop"}
+
+event: step.start
+data: {"index":1,"step":{"type":"model_output"},"event_type":"step.start"}
+
+event: step.delta
+data: {"index":1,"delta":{"text":"Hi! 👋 Grüße.","type":"text"},"event_type":"step.delta"}
+
+event: step.stop
+data: {"index":1,"event_type":"step.stop"}
+
+event: interaction.completed
+data: {"interaction":{"id":"v1_fixture","status":"completed","usage":{"total_tokens":530,"total_input_tokens":8,"total_output_tokens":12,"total_thought_tokens":297}},"event_type":"interaction.completed"}
+

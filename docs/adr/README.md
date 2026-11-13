@@ -15,3 +15,4 @@ Use [`template.md`](template.md) for new records. Name files `NNNN-short-title.m
 | [0005](0005-limits-and-streams.md) | Limits on requests and responses, and how streams are read | Accepted |
 | [0006](0006-recorded-fixtures.md) | Tests replay recorded provider responses, recorded only by hand | Accepted |
 | [0007](0007-no-automatic-retries.md) | No automatic retries: errors say whether and when to retry | Accepted |
+| [0008](0008-no-provider-side-storage.md) | ai-core never asks a provider to retain conversations | Accepted |

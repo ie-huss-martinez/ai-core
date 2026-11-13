@@ -4,6 +4,7 @@
 //
 //   ANTHROPIC_API_KEY=… pnpm record-fixtures anthropic
 //   MOONSHOT_API_KEY=… pnpm record-fixtures kimi
+//   GEMINI_API_KEY=… pnpm record-fixtures gemini
 //
 // It sends a fixed, harmless set of prompts with small output budgets, keeps
 // only allowlisted headers, replaces request IDs, and refuses to write a file
@@ -91,6 +92,57 @@ const PROVIDERS = {
         messages: user("What's the weather like in Paris right now?"),
       },
       "error-401": { max_completion_tokens: 20, messages: user("Hello."), invalidKey: true },
+    },
+  },
+  gemini: {
+    endpoint: "https://generativelanguage.googleapis.com/v1beta/interactions?alt=sse",
+    keyVariable: "GEMINI_API_KEY",
+    model: process.env.RECORD_MODEL ?? "gemini-3.8-flash",
+    apiVersion: "2026-05-20",
+    requestIdHeader: "x-request-id",
+    headers: (key) => ({
+      "x-goog-api-key": key,
+      "api-revision": "2026-05-20",
+      "content-type": "application/json",
+      accept: "text/event-stream",
+    }),
+    cases: {
+      text: {
+        store: false,
+        generation_config: { max_output_tokens: 200 },
+        input: [
+          {
+            type: "user_input",
+            content: [{ type: "text", text: "Say hello in one short sentence." }],
+          },
+        ],
+      },
+      thinking: {
+        store: false,
+        generation_config: { max_output_tokens: 2_000, thinking_summaries: "auto" },
+        input: [
+          {
+            type: "user_input",
+            content: [{ type: "text", text: "What is 17 times 23? Answer in one sentence." }],
+          },
+        ],
+      },
+      "tool-call": {
+        store: false,
+        generation_config: { max_output_tokens: 300 },
+        tools: [{ type: "function", ...weatherTool }],
+        input: [
+          {
+            type: "user_input",
+            content: [{ type: "text", text: "What's the weather like in Paris right now?" }],
+          },
+        ],
+      },
+      "error-401": {
+        store: false,
+        input: [{ type: "user_input", content: [{ type: "text", text: "Hello." }] }],
+        invalidKey: true,
+      },
     },
   },
 };
