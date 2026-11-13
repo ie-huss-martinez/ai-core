@@ -80,6 +80,7 @@ describe("the request (verified against OpenAI's specification and Kimi's API re
       max_completion_tokens: 16_000,
       stream_options: { include_usage: true },
       stream: true,
+      store: false,
     });
   });
 
@@ -152,7 +153,20 @@ describe("the request (verified against OpenAI's specification and Kimi's API re
       tool_choice: "none",
       reasoning_effort: "low",
       stream: true,
+      store: false,
     });
+  });
+
+  it("never lets providerOptions ask for storage (ADR 0008)", async () => {
+    const { provider, requests } = setup("openai-compatible/text");
+    await provider.complete({ ...ask(), providerOptions: { openai: { store: true } } });
+    expect(requests[0]?.body).toMatchObject({ store: false });
+  });
+
+  it("leaves store out with sendStore: false, and still drops a store from providerOptions", async () => {
+    const { provider, requests } = setup("openai-compatible/text", {}, { sendStore: false });
+    await provider.complete({ ...ask(), providerOptions: { openai: { store: true } } });
+    expect(requests[0]?.body).not.toHaveProperty("store");
   });
 
   it("can send max_tokens instead, for APIs that only know it", async () => {
@@ -250,6 +264,13 @@ describe("Kimi (the preset)", () => {
       requests: fake.requests,
     };
   }
+
+  it("sends no store, which Kimi doesn't document, even from providerOptions", async () => {
+    const fake = fixtureFetch(loadFixture("kimi/thinking"));
+    const provider = createKimi({ apiKey: KEY, model: "kimi-k3.1-pro", fetch: fake.fetch });
+    await provider.complete({ ...ask(), providerOptions: { kimi: { store: true } } });
+    expect(fake.requests[0]?.body).not.toHaveProperty("store");
+  });
 
   it("uses Kimi's documented base URL, and tags its state kimi", async () => {
     const { provider, requests } = kimi();

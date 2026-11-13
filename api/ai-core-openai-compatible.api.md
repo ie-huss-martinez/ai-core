@@ -23,7 +23,7 @@ export function createKimi(options: KimiOptions): AiProvider;
 export function createOpenAICompatible(options: OpenAICompatibleOptions): AiProvider;
 
 // @public
-export type KimiOptions = Omit<OpenAICompatibleOptions, "baseURL" | "provider"> & {
+export type KimiOptions = Omit<OpenAICompatibleOptions, "baseURL" | "provider" | "sendStore"> & {
     readonly baseURL?: string;
 };
 
@@ -40,6 +40,7 @@ export interface OpenAICompatibleOptions {
     readonly model: string;
     readonly onWarning?: (warning: AiLimitWarning) => void;
     readonly provider?: string;
+    readonly sendStore?: boolean;
 }
 
 ```

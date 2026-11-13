@@ -52,6 +52,14 @@ export interface OpenAICompatibleOptions {
    * is deprecated there, but some compatible APIs only know it.
    */
   readonly maxTokensField?: "max_completion_tokens" | "max_tokens";
+  /**
+   * Whether to send `store: false`, so the provider keeps no copy of the
+   * conversation (ADR 0008). Defaults to `true`: OpenAI documents `store`.
+   * Set it to `false` only for an API that rejects unknown fields and
+   * doesn't store conversations. Either way, a `store` from `providerOptions`
+   * is never sent.
+   */
+  readonly sendStore?: boolean;
   /** The `fetch` to use. Defaults to the global `fetch`. */
   readonly fetch?: typeof fetch;
   /** Response limits, instead of the defaults (ADR 0005). */
@@ -117,6 +125,7 @@ export function createOpenAICompatible(options: OpenAICompatibleOptions): AiProv
     model: options.model,
     maxOutputTokens: options.maxOutputTokens ?? 16_000,
     maxTokensField: options.maxTokensField ?? "max_completion_tokens",
+    sendStore: options.sendStore ?? true,
   } as const;
   const fetchImpl = options.fetch ?? ((input, init) => globalThis.fetch(input, init));
   // The key stays in this closure: never a property of the provider (ADR 0004).
@@ -160,7 +169,7 @@ export function createOpenAICompatible(options: OpenAICompatibleOptions): AiProv
  *
  * @public
  */
-export type KimiOptions = Omit<OpenAICompatibleOptions, "baseURL" | "provider"> & {
+export type KimiOptions = Omit<OpenAICompatibleOptions, "baseURL" | "provider" | "sendStore"> & {
   /** Defaults to `https://api.moonshot.ai/v1`, Kimi's documented API. */
   readonly baseURL?: string;
 };
@@ -185,5 +194,8 @@ export function createKimi(options: KimiOptions): AiProvider {
     ...options,
     baseURL: options.baseURL ?? "https://api.moonshot.ai/v1",
     provider: "kimi",
+    // Kimi doesn't document `store`; a store from providerOptions still
+    // isn't sent (ADR 0008).
+    sendStore: false,
   });
 }
