@@ -75,6 +75,9 @@
     "verify": "pnpm lint && pnpm typecheck && pnpm lint:deps && pnpm build && pnpm test && pnpm test:browser && pnpm check:size && pnpm check:api && pnpm check:package",
     "verify:fast": "pnpm typecheck && pnpm test && pnpm lint:deps && pnpm check:api"
   },
+  "dependencies": {
+    "@hussmartinez/sdk-core": "catalog:"
+  },
   "devDependencies": {
     "@arethetypeswrong/cli": "catalog:",
     "@biomejs/biome": "catalog:",
