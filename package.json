@@ -93,6 +93,7 @@
     "@size-limit/file": "catalog:",
     "@types/node": "catalog:",
     "@vitest/browser-playwright": "catalog:",
+    "ajv": "catalog:",
     "dependency-cruiser": "catalog:",
     "husky": "catalog:",
     "lint-staged": "catalog:",

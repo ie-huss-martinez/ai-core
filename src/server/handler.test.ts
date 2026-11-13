@@ -352,6 +352,10 @@ describe("createAiHandler: prepare", () => {
     ["a forced tool", { maxOutputTokens: 10, toolChoice: "required" }],
     ["tools without a schema", { maxOutputTokens: 10, tools: [{ name: "t" }] }],
     ["nothing", undefined],
+    [
+      "a tool schema that isn't JSON",
+      { maxOutputTokens: 10, tools: [{ name: "t", inputSchema: { maximum: Number.NaN } }] },
+    ],
   ])("answers 500 PREPARE_FAILED when prepare returns %s", async (_, settings) => {
     const { handler, provider } = setup(undefined, {
       prepare: () => settings as unknown as AiCallSettings,
