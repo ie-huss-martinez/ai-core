@@ -118,7 +118,13 @@ function text(value: Json, path: string): AiTextPart {
   };
 }
 
-function part(value: unknown, path: string): AiPart {
+/**
+ * Checks one part against the message model, as {@link decodeMessages} does,
+ * with images as bytes.
+ *
+ * @internal
+ */
+export function decodePart(value: unknown, path: string): AiPart {
   const raw = object(value, path);
   switch (raw["type"]) {
     case "text":
@@ -203,7 +209,7 @@ export function decodeMessages(value: unknown, path = "messages"): AiMessage[] {
       throw invalid(`${messagePath}.role must be "user" or "assistant".`, `${messagePath}.role`);
     }
     const parts = list(message["parts"], `${messagePath}.parts`).map((item, partIndex) =>
-      part(item, `${messagePath}.parts[${partIndex}]`),
+      decodePart(item, `${messagePath}.parts[${partIndex}]`),
     );
     for (const [partIndex, item] of parts.entries()) {
       if (item.type === "tool-call" && role !== "assistant") {

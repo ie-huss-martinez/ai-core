@@ -10,7 +10,11 @@
  * @packageDocumentation
  */
 
-export type { ContractScenario, ContractTestApi } from "./testing/contract.js";
+export type {
+  ContractScenario,
+  ContractTestApi,
+  ProviderContractOptions,
+} from "./testing/contract.js";
 export { defineProviderContract } from "./testing/contract.js";
 export type { FakeProvider, FakeProviderOptions, FakeTurn } from "./testing/fake-provider.js";
 export { createFakeProvider } from "./testing/fake-provider.js";

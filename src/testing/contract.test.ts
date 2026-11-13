@@ -2,11 +2,19 @@ import { describe, expect, it } from "vitest";
 import { AiError } from "../core/errors/ai-error.js";
 import type { AiEvent, AiProvider, AiRequest } from "../core/model/provider.js";
 import { fakeScenarios } from "../test/fake-scenarios.js";
-import { type ContractScenario, type ContractTestApi, defineProviderContract } from "./contract.js";
+import {
+  type ContractScenario,
+  type ContractTestApi,
+  defineProviderContract,
+  type ProviderContractOptions,
+} from "./contract.js";
 import { createFakeProvider } from "./fake-provider.js";
 
 /** Registers the suite without running it, so each test can be run against a broken provider. */
-function contractTests(make: (scenario: ContractScenario) => AiProvider) {
+function contractTests(
+  make: (scenario: ContractScenario) => AiProvider,
+  options?: ProviderContractOptions,
+) {
   const tests = new Map<string, () => Promise<void>>();
   const api: ContractTestApi = {
     describe: (_, body) => body(),
@@ -14,7 +22,7 @@ function contractTests(make: (scenario: ContractScenario) => AiProvider) {
       tests.set(name, body);
     },
   };
-  defineProviderContract(make, api);
+  defineProviderContract(make, api, options);
   return (name: string): Promise<void> => {
     const test = tests.get(name);
     if (!test) {
@@ -78,6 +86,35 @@ describe("the contract suite", () => {
     await expect(run("streams deltas, then their part, then exactly one finish")).rejects.toThrow(
       'provider-state must be tagged "renamed"',
     );
+  });
+
+  it("accepts another provider's state from a relay, and still checks the rest", async () => {
+    const relayed = (scenario: ContractScenario) =>
+      createFakeProvider(() => fakeScenarios[scenario], { provider: "relay" });
+    const run = contractTests(relayed, { relaysState: true });
+    await expect(
+      run("streams deltas, then their part, then exactly one finish"),
+    ).resolves.toBeUndefined();
+    await expect(
+      run("reports tool calls with JSON input, and finishes with tool-calls"),
+    ).resolves.toBeUndefined();
+
+    const broken = contractTests(
+      (scenario) => {
+        const provider = relayed(scenario);
+        const events = async function* (request: AiRequest) {
+          for await (const event of provider.stream(request)) {
+            yield event;
+          }
+          yield { type: "text-delta", text: "late" } as AiEvent;
+        };
+        return { ...provider, stream: (request: AiRequest) => events(request) };
+      },
+      { relaysState: true },
+    );
+    await expect(
+      broken("streams deltas, then their part, then exactly one finish"),
+    ).rejects.toThrow("finish must be the last event.");
   });
 
   it("catches a failure that isn't an AiError with retryable", async () => {

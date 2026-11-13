@@ -3,6 +3,7 @@
 - **Status:** Accepted
 - **Date:** 2026-11-12
 - **Amended:** 2026-11-13. The contract suite takes `{ describe, it }` only, without `expect`, and throws its own errors: `node:test` has no `expect`, and matchers differ between frameworks, while `describe` and `it` have the same shape in Vitest, Jest and `node:test`. The decision that `ai-core` depends on no test framework is unchanged.
+- **Amended:** 2026-11-13. The browser transport of [0003](0003-request-handler-and-wire-protocol.md) is a relay. Its `provider` is `"ai-core"`, but it carries the whole history to the handler, and returns the server's provider's state tagged with that provider's name, as it must for the server to replay it. "A provider replays only state with its own name" applies to providers that call a model, not to relays. The contract suite takes `{ relaysState: true }` for relays, which skips only the check that state carries the provider's own name.
 
 ## Context
 

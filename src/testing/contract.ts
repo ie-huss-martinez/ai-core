@@ -33,6 +33,22 @@ export interface ContractTestApi {
   it(name: string, body: () => Promise<void>): void;
 }
 
+/**
+ * Options for {@link defineProviderContract}.
+ *
+ * @public
+ */
+export interface ProviderContractOptions {
+  /**
+   * Set it for a provider that relays another provider's results unchanged,
+   * such as the browser transport: its parts keep the state of the provider
+   * that produced them, tagged with that provider's name, so the check that
+   * state carries its own name is skipped (ADR 0002). Every other check
+   * still applies.
+   */
+  readonly relaysState?: boolean;
+}
+
 /** A prompt that must never appear in an error. */
 const SENTINEL = "contract-sentinel-prompt-7f3a";
 
@@ -181,13 +197,20 @@ function checkOwnState(provider: AiProvider, parts: readonly AiPart[]): void {
  * @param makeProvider - Builds a fresh provider for one test, behaving as
  *   the scenario asks. It's called once or twice per test.
  * @param api - The test framework's `describe` and `it`.
+ * @param options - For providers that relay another provider's state.
  * @public
  */
 export function defineProviderContract(
   makeProvider: (scenario: ContractScenario) => AiProvider | Promise<AiProvider>,
   api: ContractTestApi,
+  options: ProviderContractOptions = {},
 ): void {
   const { describe, it } = api;
+  const checkState = (provider: AiProvider, parts: readonly AiPart[]): void => {
+    if (!options.relaysState) {
+      checkOwnState(provider, parts);
+    }
+  };
 
   describe("provider contract (ai-core ADR 0002)", () => {
     it("has a provider name", async () => {
@@ -211,7 +234,7 @@ export function defineProviderContract(
         finish?.type === "finish" && finish.finishReason === "stop",
         "It must finish with stop.",
       );
-      checkOwnState(provider, parts);
+      checkState(provider, parts);
     });
 
     it("returns from complete() what the stream delivers", async () => {
@@ -252,7 +275,7 @@ export function defineProviderContract(
         finish?.type === "finish" && finish.finishReason === "tool-calls",
         "It must finish with tool-calls.",
       );
-      checkOwnState(provider, parts);
+      checkState(provider, parts);
     });
 
     it("fails with an AiError that says whether to retry", async () => {

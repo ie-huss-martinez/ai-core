@@ -1,6 +1,6 @@
 /**
- * Core of ai-core: the message model, provider types, errors, limits and
- * the message catalogue. The browser transport joins it in a later release.
+ * Core of ai-core: the message model, provider types, errors, limits, the
+ * message catalogue and the browser transport.
  *
  * @remarks
  * This entry makes no request on import and touches no DOM, so it imports in
@@ -9,6 +9,8 @@
  * @packageDocumentation
  */
 
+export type { HttpTransportOptions } from "./adapters/http/transport.js";
+export { httpTransport } from "./adapters/http/transport.js";
 export type { AiErrorCode } from "./core/errors/ai-error.js";
 export { AiError, isAiError } from "./core/errors/ai-error.js";
 export type {

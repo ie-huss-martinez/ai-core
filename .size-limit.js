@@ -17,6 +17,13 @@
  * the handler itself is 3.9 kB, and the strict message decoder it loads is
  * 1.8 kB, which the browser transport will share. 8 kB leaves room for
  * fixes, not for a second feature.
+ *
+ * Core and browser transport: revisited with the transport. The core alone
+ * measured 3.7 kB. With the transport it measures 10.1 kB, unminified: the
+ * shared streaming code every adapter also loads (stream parser, call guard,
+ * reader) is 4.1 kB, and the message decoder the handler shares is 1.8 kB.
+ * Bundlers drop the transport for hosts that import only types or errors
+ * from the core. 12 kB leaves the same headroom as the adapters' budgets.
  */
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, normalize } from "node:path";
@@ -51,7 +58,7 @@ const entry = (name, file, limit) => ({
 });
 
 export default [
-  entry("Core and browser transport (.)", "index.js", "8 kB"),
+  entry("Core and browser transport (.)", "index.js", "12 kB"),
   entry("Server request handler (./server)", "server.js", "8 kB"),
   entry("Anthropic adapter (./anthropic)", "anthropic.js", "10 kB"),
   entry("Gemini adapter (./gemini)", "gemini.js", "10 kB"),

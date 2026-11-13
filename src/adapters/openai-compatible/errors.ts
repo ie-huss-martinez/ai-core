@@ -1,31 +1,6 @@
 import type { AiError } from "../../core/errors/ai-error.js";
 import { parseRetryAfter, providerError } from "../../core/errors/provider-errors.js";
-
-/** The most of an error body ai-core reads: enough for its JSON, never a whole stream. */
-const ERROR_BODY_BYTES = 64 * 1024;
-
-async function readCapped(response: Response): Promise<string> {
-  const reader = response.body?.getReader();
-  if (!reader) {
-    return "";
-  }
-  const decoder = new TextDecoder();
-  let body = "";
-  let size = 0;
-  try {
-    while (size < ERROR_BODY_BYTES) {
-      const { done, value } = await reader.read();
-      if (done) {
-        break;
-      }
-      size += value.byteLength;
-      body += decoder.decode(value, { stream: true });
-    }
-  } finally {
-    reader.cancel().catch(() => undefined);
-  }
-  return body;
-}
+import { readCapped } from "../shared/read-capped.js";
 
 /**
  * Builds the error for a response that isn't a success, from the shape the

@@ -4,6 +4,7 @@ import {
   parseRetryAfter,
   providerError,
 } from "../../core/errors/provider-errors.js";
+import { readCapped } from "../shared/read-capped.js";
 
 /**
  * Anthropic's error types and the HTTP status each stands for, from its
@@ -32,37 +33,6 @@ const STATUS_OF_TYPE: Readonly<Record<string, number>> = {
 export function errorTypeFailure(type: string): readonly [AiErrorCode, boolean] {
   const status = STATUS_OF_TYPE[type];
   return status === undefined ? ["PROVIDER_ERROR", false] : classifyStatus(status);
-}
-
-/** The most of an error body ai-core reads: enough for its JSON, never a whole stream. */
-const ERROR_BODY_BYTES = 64 * 1024;
-
-async function readCapped(response: Response): Promise<string> {
-  const reader = response.body?.getReader();
-  if (!reader) {
-    return "";
-  }
-  const chunks: Uint8Array[] = [];
-  let size = 0;
-  try {
-    while (size < ERROR_BODY_BYTES) {
-      const { done, value } = await reader.read();
-      if (done) {
-        break;
-      }
-      chunks.push(value);
-      size += value.byteLength;
-    }
-  } finally {
-    reader.cancel().catch(() => undefined);
-  }
-  const bytes = new Uint8Array(size);
-  let offset = 0;
-  for (const chunk of chunks) {
-    bytes.set(chunk, offset);
-    offset += chunk.byteLength;
-  }
-  return new TextDecoder().decode(bytes.subarray(0, ERROR_BODY_BYTES));
 }
 
 /**

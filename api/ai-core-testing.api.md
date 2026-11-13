@@ -26,7 +26,7 @@ export function createFakeProvider(turns: readonly FakeTurn[] | ((request: AiReq
 // Warning: (ae-forgotten-export) The symbol "AiProvider" needs to be exported by the entry point testing.d.ts
 //
 // @public
-export function defineProviderContract(makeProvider: (scenario: ContractScenario) => AiProvider | Promise<AiProvider>, api: ContractTestApi): void;
+export function defineProviderContract(makeProvider: (scenario: ContractScenario) => AiProvider | Promise<AiProvider>, api: ContractTestApi, options?: ProviderContractOptions): void;
 
 // @public
 export interface FakeProvider extends AiProvider {
@@ -52,6 +52,11 @@ export interface FakeTurn {
     readonly rawFinishReason?: string;
     // Warning: (ae-forgotten-export) The symbol "AiUsage" needs to be exported by the entry point testing.d.ts
     readonly usage?: AiUsage;
+}
+
+// @public
+export interface ProviderContractOptions {
+    readonly relaysState?: boolean;
 }
 
 ```
