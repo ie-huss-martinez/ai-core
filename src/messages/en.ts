@@ -46,6 +46,22 @@ export const aiCoreMessages = /* @__PURE__ */ defineMessages({
   "errors.STREAM_TRUNCATED": "The response was cut off. Please try again.",
   "errors.PROVIDER_RESPONSE_INVALID":
     "The assistant sent a response that couldn't be read. Please try again.",
+  "errors.PROVIDER_INVALID_REQUEST":
+    "The assistant couldn't process this message. Please try again.",
+  "errors.PROVIDER_AUTHENTICATION":
+    "The assistant isn't set up correctly. Please contact the site's support.",
+  "errors.PROVIDER_BILLING": "The assistant isn't available right now. Please try again later.",
+  "errors.PROVIDER_PERMISSION":
+    "The assistant isn't set up correctly. Please contact the site's support.",
+  "errors.PROVIDER_NOT_FOUND":
+    "The assistant isn't set up correctly. Please contact the site's support.",
+  "errors.PROVIDER_REQUEST_TOO_LARGE":
+    "This conversation is too long for the assistant. Start a new conversation to continue.",
+  "errors.PROVIDER_RATE_LIMITED": "The assistant is busy. Please try again in a moment.",
+  "errors.PROVIDER_OVERLOADED": "The assistant is busy. Please try again in a moment.",
+  "errors.PROVIDER_TIMEOUT": "The assistant took too long to respond. Please try again.",
+  "errors.PROVIDER_ERROR": "The assistant ran into a problem. Please try again.",
+  "errors.NETWORK_ERROR": "The assistant couldn't be reached. Check your connection and try again.",
   "errors.SPEND_LIMIT_REACHED":
     "The assistant has reached its usage limit. Please try again later.",
   "warnings.responseBytes": "This response is large ({actual, fileSize}), and may be slow to show.",
