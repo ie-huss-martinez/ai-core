@@ -1,0 +1,22 @@
+# provider: openai-compatible
+# endpoint: POST https://api.openai.com/v1/chat/completions
+# model: gpt-5
+# date: 2026-11-13
+# kind: synthetic
+# source: https://github.com/openai/openai-openapi (openapi.json: CreateChatCompletionStreamResponse, ErrorResponse)
+HTTP/1.1 200 OK
+content-type: text/event-stream; charset=utf-8
+x-request-id: req_fixture_0001
+
+data: {"id":"chatcmpl-fixture","object":"chat.completion.chunk","created":1794500000,"model":"gpt-5","choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-fixture","object":"chat.completion.chunk","created":1794500000,"model":"gpt-5","choices":[{"index":0,"delta":{"content":"Hello there! "},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-fixture","object":"chat.completion.chunk","created":1794500000,"model":"gpt-5","choices":[{"index":0,"delta":{"content":"How can I help today?"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-fixture","object":"chat.completion.chunk","created":1794500000,"model":"gpt-5","choices":[{"index":0,"delta":{},"finish_reason":"stop"}]}
+
+data: {"id":"chatcmpl-fixture","object":"chat.completion.chunk","created":1794500000,"model":"gpt-5","choices":[],"usage":{"prompt_tokens":12,"completion_tokens":9,"total_tokens":21,"prompt_tokens_details":{"cached_tokens":4},"completion_tokens_details":{"reasoning_tokens":0}}}
+
+data: [DONE]
+

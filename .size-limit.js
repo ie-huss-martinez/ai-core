@@ -13,9 +13,34 @@
  * loads, which every adapter shares. 10 kB leaves room for the second and
  * third adapters without letting one grow unnoticed.
  */
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, join, normalize } from "node:path";
+
+/**
+ * The built files an entry loads: the entry, and every chunk it imports,
+ * directly or through other chunks. Counting only these, rather than every
+ * shared chunk, keeps one entry's budget from paying for code that only
+ * other entries load, such as the adapters' stream code in the core's.
+ */
+function loadedFiles(file) {
+  const seen = new Set();
+  const visit = (path) => {
+    if (seen.has(path) || !existsSync(path)) {
+      return;
+    }
+    seen.add(path);
+    const code = readFileSync(path, "utf8");
+    for (const [, specifier] of code.matchAll(/(?:from|import)\s*\(?\s*"(\.{1,2}\/[^"]+\.js)"/g)) {
+      visit(normalize(join(dirname(path), specifier)));
+    }
+  };
+  visit(join("dist", file));
+  return [...seen];
+}
+
 const entry = (name, file, limit) => ({
   name: `${name}, with the shared code it loads`,
-  path: [`dist/${file}`, "dist/shared/*.js"],
+  path: loadedFiles(file),
   brotli: true,
   limit,
 });

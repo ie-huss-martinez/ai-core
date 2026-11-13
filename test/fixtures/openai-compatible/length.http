@@ -1,0 +1,16 @@
+# provider: openai-compatible
+# endpoint: POST https://api.openai.com/v1/chat/completions
+# model: gpt-5
+# date: 2026-11-13
+# kind: synthetic
+# source: https://github.com/openai/openai-openapi (openapi.json: CreateChatCompletionStreamResponse, ErrorResponse)
+HTTP/1.1 200 OK
+content-type: text/event-stream; charset=utf-8
+x-request-id: req_fixture_0001
+
+data: {"id":"chatcmpl-fixture","object":"chat.completion.chunk","created":1794500000,"model":"gpt-5","choices":[{"index":0,"delta":{"role":"assistant","content":"Counting: one, two"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-fixture","object":"chat.completion.chunk","created":1794500000,"model":"gpt-5","choices":[{"index":0,"delta":{},"finish_reason":"length"}]}
+
+data: [DONE]
+
