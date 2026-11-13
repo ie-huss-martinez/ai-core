@@ -129,6 +129,8 @@ export interface OpenAICompatibleDefaults {
   readonly model: string;
   readonly maxOutputTokens: number;
   readonly maxTokensField: "max_completion_tokens" | "max_tokens";
+  /** Whether to send `store: false`: true except for APIs that don't document it (ADR 0008). */
+  readonly sendStore: boolean;
 }
 
 /**
@@ -188,6 +190,7 @@ export function toChatCompletionsBody(
       ? (extra as Record<string, AiJsonValue>)
       : {};
   // providerOptions come after the adapter's own fields (ADR 0002), but the
-  // stream is ai-core's.
-  return { ...own, ...options, stream: true };
+  // stream is ai-core's, and storage is never asked for (ADR 0008).
+  const { store: _ignored, ...rest } = { ...own, ...options };
+  return { ...rest, stream: true, ...(defaults.sendStore ? { store: false } : {}) };
 }
