@@ -1,6 +1,6 @@
 {
   "name": "@hussmartinez/ai-core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Headless AI provider layer for the @hussmartinez family: Anthropic, Gemini and OpenAI-compatible adapters, a server handler and a browser transport. The family's only package with network code.",
   "license": "Apache-2.0",
   "repository": {
