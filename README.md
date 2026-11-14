@@ -6,7 +6,11 @@ No `@hussmartinez` SDK imports it. An SDK that needs AI defines its own provider
 
 This repository publishes **`@hussmartinez/ai-core`**. It follows the family standards in [`sdk-core`'s `STANDARDS.md`](https://github.com/ie-huss-martinez/sdk-core/blob/main/STANDARDS.md), and in particular the decisions on [`ai-core` and host-configured network access](https://github.com/ie-huss-martinez/sdk-core/blob/main/docs/adr/0035-ai-core-and-host-configured-network.md), [hostile input and no network](https://github.com/ie-huss-martinez/sdk-core/blob/main/docs/adr/0012-hostile-input-and-no-network.md) and [ports and adapters](https://github.com/ie-huss-martinez/sdk-core/blob/main/docs/adr/0008-ports-adapters-and-session.md).
 
-> Status: not published yet. 0.1.0 is the first release.
+Published on npm as [`@hussmartinez/ai-core`](https://www.npmjs.com/package/@hussmartinez/ai-core), with provenance. It's pre-1.0, so a minor version can change the API; the [changelog](CHANGELOG.md) says how to migrate.
+
+```sh
+pnpm add @hussmartinez/ai-core @hussmartinez/sdk-core
+```
 
 - [How it fits together](#how-it-fits-together)
 - [Quick start](#quick-start)
@@ -45,6 +49,7 @@ Every provider, whether an adapter, the browser transport, the fake provider or 
 | `@hussmartinez/ai-core/gemini` | `createGemini` |
 | `@hussmartinez/ai-core/openai-compatible` | `createOpenAICompatible` and `createKimi` |
 | `@hussmartinez/ai-core/testing` | `createFakeProvider` and `defineProviderContract` |
+| `@hussmartinez/ai-core/formats/*` | The JSON Schemas of ai-core's portable formats, such as `hm-ai-protocol/v1.schema.json` ([`docs/formats`](docs/formats)) |
 
 Each provider has its own entry, so you bundle only the ones you use. The only runtime dependency is `@hussmartinez/sdk-core`.
 
@@ -208,6 +213,7 @@ Every failure is an `AiError` with a stable `code`. Check it with `isAiError(err
 
 - **`details.retryable`** says whether the same call can succeed later, and `details.retryAfter` gives the seconds to wait, when the provider sent them. ai-core never retries for you.
 - **`details.partial: true`** means events were already delivered before the failure.
+- **`details.reason`** is a stable token for why a request or a stream was refused, such as `unknown-field`, `invalid-base64` or `context-changed`. [`docs/formats`](docs/formats) lists them.
 - **Show users the catalogue's text, never `error.message`,** which is for developers:
 
 ```ts
@@ -260,7 +266,7 @@ By default, an adapter refuses to run anywhere it doesn't recognise as a server,
 
 ## Data and providers
 
-ai-core never asks a provider to keep your users' conversations ([ADR 0008](docs/adr/0008-no-provider-side-storage.md)). Where a provider offers server-side storage, the adapter turns it off in every request, and `providerOptions` can't turn it back on: Gemini and OpenAI-compatible APIs always get `store: false`. Your application keeps the conversation and sends it with each call.
+ai-core never asks a provider to keep your users' conversations ([ADR 0008](docs/adr/0008-no-provider-side-storage.md)). Where a provider offers server-side storage, the adapter turns it off in every request, and `providerOptions` can't turn it back on. Gemini always gets `store: false`, and so does an OpenAI-compatible API, unless you pass `sendStore: false` for one that rejects the field. The Kimi preset leaves it out, because Kimi doesn't document it. Your application keeps the conversation and sends it with each call.
 
 `store` is only one of the ways a provider can retain data. Each provider's own terms decide what else happens to what you send, such as logging, abuse monitoring or training use, which can differ on free tiers. Reviewing those terms, and choosing a tier and settings that fit your users, is your responsibility as the host. Checked on 2026-11-13:
 
