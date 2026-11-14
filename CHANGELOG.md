@@ -1,5 +1,11 @@
 # @hussmartinez/ai-core
 
+## 0.1.1
+
+### Patch Changes
+
+- [#27](https://github.com/ie-huss-martinez/ai-core/pull/27) [`9e8d296`](https://github.com/ie-huss-martinez/ai-core/commit/9e8d296dc2961027701a052f8c19cc385143016f) Thanks [@hussmartinez](https://github.com/hussmartinez)! - The README now shows the package as published, with the install command. It also corrects which OpenAI-compatible requests get `store: false` (not the Kimi preset, nor with `sendStore: false`), and documents `details.reason` and the JSON Schemas under `@hussmartinez/ai-core/formats/*`. The security policy no longer says nothing is published.
+
 ## 0.1.0
 
 ### Minor Changes
