@@ -41,7 +41,7 @@ Please include:
 
 ## Supported versions
 
-The package is pre-1.0. Security fixes go into the latest release only. No version has been published yet.
+The package is pre-1.0. Security fixes go into the latest release only, so upgrade to it to receive them.
 
 ## Scope
 
